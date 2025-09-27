@@ -26,6 +26,14 @@ class DispatchRequest(BaseModel):
         default=None,
         description="ISO 8601 timestamp supplied by the client if available.",
     )
+    network_quality: Optional[str] = Field(
+        default=None,
+        description="User's network quality: 'slow', 'medium', 'fast', 'unknown'"
+    )
+    connection_type: Optional[str] = Field(
+        default=None,
+        description="Connection type: '2g', '3g', '4g', 'wifi', 'unknown'"
+    )
 
     @field_validator("lang")
     def normalize_lang(cls, value: str) -> str:
@@ -83,6 +91,8 @@ class ChatRequest(BaseModel):
     lon: Optional[float] = None
     user_query: str = Field(..., min_length=1)
     timestamp: Optional[str] = None
+    network_quality: Optional[str] = None
+    connection_type: Optional[str] = None
 
     def to_dispatch_request(self) -> DispatchRequest:
         lat = self.lat if self.lat is not None else 0.0
@@ -101,6 +111,8 @@ class ChatRequest(BaseModel):
             lon=lon,
             user_query=query,
             timestamp=self.timestamp,
+            network_quality=self.network_quality,
+            connection_type=self.connection_type,
         )
 
 

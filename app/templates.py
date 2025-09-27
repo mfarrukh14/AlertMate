@@ -780,6 +780,11 @@ def get_chat_page() -> str:
             </div>
             
             <div class="info-card">
+                <h3>📡 Network Status</h3>
+                <p id="network-status">Detecting...</p>
+            </div>
+            
+            <div class="info-card">
                 <h3>🏥 Available Services</h3>
                 <p>Medical emergencies, Police assistance, Fire & rescue, Natural disasters</p>
             </div>
@@ -808,6 +813,73 @@ def get_chat_page() -> str:
     
     <script>
         let currentUser = null;
+        let networkQuality = 'unknown';
+        let connectionType = 'unknown';
+        
+        // Network quality detection
+        function detectNetworkQuality() {
+            if ('connection' in navigator) {
+                const connection = navigator.connection;
+                connectionType = connection.effectiveType || connection.type || 'unknown';
+                
+                // Map connection types to quality
+                if (connectionType === 'slow-2g' || connectionType === '2g') {
+                    networkQuality = 'slow';
+                } else if (connectionType === '3g') {
+                    networkQuality = 'medium';
+                } else if (connectionType === '4g' || connectionType === 'wifi') {
+                    networkQuality = 'fast';
+                } else {
+                    networkQuality = 'unknown';
+                }
+                
+                // Adjust based on downlink speed if available
+                if (connection.downlink) {
+                    if (connection.downlink < 1) {
+                        networkQuality = 'slow';
+                    } else if (connection.downlink < 5) {
+                        networkQuality = 'medium';
+                    } else {
+                        networkQuality = 'fast';
+                    }
+                }
+            } else {
+                // Fallback: estimate based on user agent or other factors
+                networkQuality = 'unknown';
+            }
+            
+            console.log('Network detected:', { connectionType, networkQuality });
+            updateNetworkStatus();
+        }
+        
+        function updateNetworkStatus() {
+            const statusElement = document.getElementById('network-status');
+            if (!statusElement) return;
+            
+            const qualityEmojis = {
+                'slow': '🐌',
+                'medium': '🚶',
+                'fast': '🚀',
+                'unknown': '❓'
+            };
+            
+            const qualityTexts = {
+                'slow': 'Slow (Minimal responses)',
+                'medium': 'Medium (Optimized)',
+                'fast': 'Fast (Full responses)',
+                'unknown': 'Unknown (Minimal responses)'
+            };
+            
+            const emoji = qualityEmojis[networkQuality] || '❓';
+            const text = qualityTexts[networkQuality] || 'Unknown';
+            
+            statusElement.innerHTML = `${emoji} ${text}<br><small>${connectionType}</small>`;
+        }
+        
+        // Monitor network changes
+        if ('connection' in navigator) {
+            navigator.connection.addEventListener('change', detectNetworkQuality);
+        }
         
         async function loadUserInfo() {
             try {
@@ -881,7 +953,9 @@ def get_chat_page() -> str:
                         user_location: `${currentUser.lat}, ${currentUser.lon}`,
                         lat: currentUser.lat,
                         lon: currentUser.lon,
-                        lang: 'en'
+                        lang: 'en',
+                        network_quality: networkQuality,
+                        connection_type: connectionType
                     })
                 });
                 
@@ -911,6 +985,7 @@ def get_chat_page() -> str:
         
         // Initialize
         document.getElementById('connect-time').textContent = new Date().toLocaleTimeString();
+        detectNetworkQuality(); // Detect initial network quality
         loadUserInfo();
     </script>
 </body>
