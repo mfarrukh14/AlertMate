@@ -8,6 +8,7 @@ from typing import Any, Dict, Mapping
 from app.agents.base import AgentContext, BaseServiceAgent
 from app.models.dispatch import FrontAgentOutput, ServiceAgentResponse, ServiceType
 from app.services import medical
+from app.services.enhanced_medical import enhanced_medical
 from app.utils.llm_client import LLMError, llm_client
 
 logger = logging.getLogger(__name__)
@@ -111,12 +112,13 @@ class MedicalServiceAgent(BaseServiceAgent):
             return "ambulance_dispatch"
         return "triage_advice"
 
-    def perform_subservice(
+    async def perform_subservice_async(
         self, context: AgentContext, subservice: str, front_output: FrontAgentOutput
     ) -> ServiceAgentResponse:
         handler = self.subservices[subservice]
         if subservice == "ambulance_dispatch":
-            metadata = medical.ambulance_dispatch_packet(
+            # Use enhanced medical service with real-time data
+            metadata = await enhanced_medical.ambulance_dispatch_packet(
                 context.request.userid,
                 context.request.lat,
                 context.request.lon,
@@ -125,8 +127,9 @@ class MedicalServiceAgent(BaseServiceAgent):
             follow_up_question = "Is the patient conscious and breathing? Any heavy bleeding?"
             action = "dispatched_request_to_ambulance_provider"
         elif subservice == "nearest_hospital_lookup":
+            # Use enhanced medical service for hospital lookup
             metadata = {
-                "hospitals": medical.nearest_hospitals(
+                "hospitals": await enhanced_medical.nearest_hospitals(
                     context.request.lat,
                     context.request.lon,
                 )

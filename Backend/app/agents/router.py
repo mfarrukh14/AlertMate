@@ -100,7 +100,12 @@ class DispatchRouter:
                     front_output=front_output,
                     history=state.get("history"),
                 )
-                service_response = agent.run(context, front_output)
+                # Use async run if available, otherwise fallback to sync
+                if hasattr(agent, 'run_async'):
+                    import asyncio
+                    service_response = asyncio.run(agent.run_async(context, front_output))
+                else:
+                    service_response = agent.run(context, front_output)
                 logger.info(
                     "Service agent response",
                     extra={

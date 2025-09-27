@@ -1,0 +1,2916 @@
+{
+    "health": {
+        "candidates": [
+            {
+                "name": "ANKLESARIA NURSING HOME Hospital",
+                "contact": "772-0371",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8669985,
+                "lon": 67.0236536,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HASHMANIS HOSPITAL",
+                "contact": "7781411",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8700366,
+                "lon": 67.03438799999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "J.J. HOSPITAL & NURSING HAME",
+                "contact": "773-5146",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 18.9630684,
+                "lon": 72.8336083,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "KAMAL HOSPITAL",
+                "contact": "5655341-44",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 22.994506,
+                "lon": 72.61190119999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "KARACHI KIDNEY STONE CLINIC Hospital",
+                "contact": "7780100",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.928145,
+                "lon": 67.05535379999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MEDISHIELD HOSPITAL(PVT) LTD.,",
+                "contact": "772-6924",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NATIONAL INSTITUTE OF CARDIO- Hospital",
+                "contact": "9201271-5",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NAVEED CLINIC Hospital",
+                "contact": "512021-3",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 28.4209241,
+                "lon": 70.31805059999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NEUROSPINAL &MEDICAL INSTITUTE Hospital",
+                "contact": "7219959",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 25.0755927,
+                "lon": 55.246099,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "TAJ MEDICAL COMPLEX LIMITED Hospital",
+                "contact": "778-2768-72",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "THE KIDNEY CENTRE(FOR DIALYSIS PABX-5661000 Hospital",
+                "contact": "",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AHMAD EYE & MEDICAL CENTRE, Hospital",
+                "contact": "4972486",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AHMED EYE HOSPITAL",
+                "contact": "4972486",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 22.8721489,
+                "lon": 91.0905456,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AKHTAR'S EYE HOSPITAL",
+                "contact": "463368",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9224957,
+                "lon": 67.0922764,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "ASHFAQ MEMORIAL HOSPITAL",
+                "contact": "4961020-1",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9092117,
+                "lon": 67.0845978,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "EHSAN MEDICAL CENTRE Hospital",
+                "contact": "463054",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "FON GENERAL HOSPITAL & KARACHI",
+                "contact": "479192-95",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "GULSHAN PSYCHIATRIST HOSPITAL",
+                "contact": "496-2170",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9042833,
+                "lon": 67.0794241,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "M. RAB MEDICAL CENTRE, Hospital",
+                "contact": "4988554",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MODERN EAR NOSE & THROAT Hospital",
+                "contact": "497-1762-3",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NADEEM MEDICAL CENTRE Hospital",
+                "contact": "4984300 - 3",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 25.3362419,
+                "lon": 55.42633780000001,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SAMDANI HOSPITAL",
+                "contact": "465017",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9214421,
+                "lon": 67.08825279999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SHAN HOSPITAL",
+                "contact": "461043",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9191127,
+                "lon": 67.0955078,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "STOP Hospital",
+                "contact": "- RAJPUT HOSPITAL 4979403",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "TRAUMA ORTHOPAEDIC CLINIC (T.O Hospital",
+                "contact": "111-499-111",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "FAIZ-E-AAM HOSPITAL (PVT) LTD.",
+                "contact": "455-9114",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 26.4711553,
+                "lon": 80.34832569999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HILL PARK GENERAL HOSPITAL",
+                "contact": "4538560-3",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8741606,
+                "lon": 67.0737913,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "JINNAH MEDICAL COLLEGE Hospital",
+                "contact": "4938031-32",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.88109,
+                "lon": 67.0632778,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "LIAQUAT NATIONAL HOSPITAL",
+                "contact": "493-9612",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.891586,
+                "lon": 67.068055,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "PLASTIC SURGERY & GENERAL Hospital",
+                "contact": "4520333",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8691294,
+                "lon": 67.0813543,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AL-MURTAZA HOSPITAL",
+                "contact": "612025",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "BAQAI HOSPITAL",
+                "contact": "618082",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9884448,
+                "lon": 67.2149925,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "BAQAI INSTITUTE OF ONCOLOGY Hospital",
+                "contact": "6689082",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "CLINIC & MATERNITY HOME Hospital",
+                "contact": "621901",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 25.3353196,
+                "lon": 83.00155,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "IMAM ZAINUL ABEDIN HOSPITAL",
+                "contact": "615927",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9000922,
+                "lon": 67.0293461,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "KARACHI PSYCHIATRIC HOSPITAL",
+                "contact": "6612187",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.917021,
+                "lon": 67.0309034,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MIDWAY HOSPITAL",
+                "contact": "617813",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 5.6172076,
+                "lon": -0.2263521,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NAZIMABAD HOSPITAL &",
+                "contact": "622715",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.910688,
+                "lon": 67.0310973,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SPECIALISTS CLINIC Hospital",
+                "contact": "6610948",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 5.7165076,
+                "lon": -72.9254567,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "ASGHAR HOSPITAL",
+                "contact": "6642389",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9253002,
+                "lon": 67.0342332,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HALIM HOSPITAL(FOR CONFINMENT)",
+                "contact": "6647189",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9458356,
+                "lon": 67.0510668,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HANIF HOSPITAL",
+                "contact": "6645611",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9252866,
+                "lon": 67.0332877,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HEALTHCARE HOSPITAL",
+                "contact": "6670449",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MEDI COMPLEX Hospital",
+                "contact": "6648591",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.941715,
+                "lon": 67.04929229999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MEDLYN HOSPITAL",
+                "contact": "6677390",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.0444569,
+                "lon": 74.81023259999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "ST-2, BLOCK H, 6678442",
+                "contact": "",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "S.S. HOSPITAL (DR. SHAMIM'S)",
+                "contact": "6649331",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SHAHRUKH HOSPITAL (MATERNITY)",
+                "contact": "6635096",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 25.0019493,
+                "lon": 67.0385387,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "STOP Hospital",
+                "contact": "- AZIZ MEDICAL CENTRE 6616318",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "STOP Hospital",
+                "contact": "- DR. ZIAUDDIN HOSPITAL 6648237-9",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "TIPU SULTAN SHAHEED HOSPITAL",
+                "contact": "6634658",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 20.5745159,
+                "lon": 81.0627662,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AL-REHMAN GENERAL HOSPITAL",
+                "contact": "686380",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.218509,
+                "lon": 73.0006133,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AZIZ TABBA DIALYSIS CENTRE, Hospital",
+                "contact": "",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HABIB MEDICAL CENTRE Hospital",
+                "contact": "686160",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9192943,
+                "lon": 67.05338309999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HIGHWAY MEDICAL CENTRE Hospital",
+                "contact": "682068",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 19.1265906,
+                "lon": 72.85750879999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "KARIMABAD PSYCHIATRIC CLINIC Hospital",
+                "contact": "683129",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 36.3264073,
+                "lon": 74.6643157,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "KHAN DENTAL CLINIC Hospital",
+                "contact": "6367979",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 26.4659343,
+                "lon": 80.3002344,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MAMJI HOSPITAL",
+                "contact": "674666",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9386924,
+                "lon": 67.0775002,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MEDICON HOSPITAL",
+                "contact": "684719",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 26.775715,
+                "lon": 80.91757059999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MOTHERCARE & NURSING HOME Hospital",
+                "contact": "676158",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 19.0710172,
+                "lon": 72.8329664,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NAZ HOSPITAL & MATERNITY HOME",
+                "contact": "686374",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.5392092,
+                "lon": 74.3202632,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "RAHIM HOSPITAL (GULBERG)",
+                "contact": "688855",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9389287,
+                "lon": 67.0737692,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SHADMAN GENERAL HOSPITAL &",
+                "contact": "673178",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.5337332,
+                "lon": 74.3284642,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "STOP TAJ EYE HOSPITAL",
+                "contact": "674838",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9318614,
+                "lon": 67.060259,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "USMAN MEMORIAL HOSPITAL",
+                "contact": "681293",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9144644,
+                "lon": 67.05669189999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "WAHAJ MEMORIAL HOSPITAL",
+                "contact": "674182",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9209812,
+                "lon": 67.0717222,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "ZAHOOR MEMORIAL HOSPITAL",
+                "contact": "672115",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AUSAF POLY CLINIC Hospital",
+                "contact": "6991304",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NORTH KARACHI HOSPITAL",
+                "contact": "654776",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9726882,
+                "lon": 67.0630762,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NURSING MINOR & MATERNITY HOME Hospital",
+                "contact": "656424",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 25.3353196,
+                "lon": 83.00155,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SHAMS HOSPITAL & MATERNITY",
+                "contact": "652374",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 29.6388936,
+                "lon": -82.34224429999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "A-1 HOSPITAL",
+                "contact": "4571995",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 19.2577709,
+                "lon": 72.8621347,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AISHA GENERAL HOSPITAL",
+                "contact": "4591692",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "ALI MEDICAL COMPLEX Hospital",
+                "contact": "485000",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.2066402,
+                "lon": 71.4369837,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "BAJWA HOSPITAL & METERNITY",
+                "contact": "485785",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "CITY HOSPITAL",
+                "contact": "402460",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "E.N.T. HOSPITAL",
+                "contact": "404001",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": -20.293497,
+                "lon": 57.4965237,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HASAN GENERAL HOSPITAL",
+                "contact": "4513000",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8805825,
+                "lon": 67.18600889999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "JUNAID CLINIC Hospital",
+                "contact": "433035",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NAILA CLINIC & MATERNITY HOME Hospital",
+                "contact": "485114",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NEHAL HOSPITAL",
+                "contact": "404079",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8825577,
+                "lon": 67.1821686,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SAUDIA MEDICAL COMPLEX Hospital",
+                "contact": "485421",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SHEERAZ MEDICAL CENTRE Hospital",
+                "contact": "",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SINDH HOSPITAL & HEART CENTRE",
+                "contact": "4514476",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 25.8943018,
+                "lon": 68.52471489999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "THE HOSPITAL & MATERNITY HOME",
+                "contact": "",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 26.8289856,
+                "lon": 80.9097369,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AL-KIBRIYA HOSPITAL",
+                "contact": "4938247",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AL-WAHAB HOSPITAL",
+                "contact": "4550692",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.738647,
+                "lon": 72.701623,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "GHANI HOSPITAL",
+                "contact": "419656",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "I.Q NEURO PSYCHIATRIC Hospital",
+                "contact": "446661",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "INSTITUTE OF CLINICAL Hospital",
+                "contact": "4556460",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MEHRAN CLINIC (PRIVATE) LTD., Hospital",
+                "contact": "4554308",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "PASHA CLINIC Hospital",
+                "contact": "4521302",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8617755,
+                "lon": 67.0605841,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "PECHS TRAUMA & GEN. HOSPITAL,",
+                "contact": "4310870-2",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8688044,
+                "lon": 67.0613528,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SURGEON MUNAWAR ALI MEMORIAL Hospital",
+                "contact": "4924424",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8840042,
+                "lon": 67.07284899999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HAMID HOSPITAL (PVT.) LIMITED",
+                "contact": "330728",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.2561178,
+                "lon": 73.305807,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "KORANGI LANDHI MEDICAL CENTRE Hospital",
+                "contact": "315588",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8434062,
+                "lon": 67.189635,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MOTHER & CHILD MATERNITY Hospital",
+                "contact": "5062927",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MUBARIK CLINIC Hospital",
+                "contact": "",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 13.8297856,
+                "lon": 77.4927182,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "CLIFTON NURSING HOME Hospital",
+                "contact": "5860608",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 41.7209469,
+                "lon": -71.1680093,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "HEART CENTRE AND SPECIALISTS Hospital",
+                "contact": "5875649",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 9.9904048,
+                "lon": 76.2858349,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "QAMARUL ISLAM HOSPITAL &",
+                "contact": "531903",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8295267,
+                "lon": 67.04852629999999,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "SINDH MEDICAL CENTRE Hospital",
+                "contact": "5872638",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 27.5175784,
+                "lon": 68.7618868,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "STOP Hospital",
+                "contact": "- MID EAST HOSPITAL 531272-6",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AWAN HOSPITAL & MATERNITY HOME",
+                "contact": "625365",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.2847104,
+                "lon": 72.2879597,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "LIFECARE MEDICAL CENTRE Hospital",
+                "contact": "6656300",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 11.0319088,
+                "lon": 76.976231,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "REHMAN HOSPITAL & MATERNITY-",
+                "contact": "6650858",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.4180696,
+                "lon": 73.0644745,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "FIRASAT MEMORIAL HOSPITAL",
+                "contact": "414337",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AL-HAFEEZ MEDICAL CENTRE, Hospital",
+                "contact": "4927680",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.6066208,
+                "lon": 74.3285772,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "DARUL SHIFA HOSPITAL &",
+                "contact": "271743",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "MURSHID HOSPITAL & HEALTH CARE",
+                "contact": "226596-98",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9268931,
+                "lon": 66.9461134,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "AL-RAZI HOSPITAL & MATERNITY",
+                "contact": "542970",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.512556,
+                "lon": 74.3506313,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "DARUL SEHAT HOSPITAL,",
+                "contact": "8110271-7",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.9143327,
+                "lon": 67.127346,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "STOPPED O.T. HOSPITAL",
+                "contact": "4580660",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NASIMA MATERNITY & GENERAL Hospital",
+                "contact": "715351",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "CITY MEDICAL CENTRE Hospital",
+                "contact": "4552007",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "NATIONAL MEDICAL CENTRE Hospital",
+                "contact": "5380000",
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8465918,
+                "lon": 67.0557249,
+                "source": "general_hospitals"
+            },
+            {
+                "name": "LIST OF HOSPITALS PROVINCE-WISE WITH ISOLATION FACILITIES",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "Sr Districts Hospitals Beds",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "1. Islamabad Pakistan Institute of Medical Sciences (PIMS) 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.7035185,
+                "lon": 73.0514542,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "TOTAL 1 (Medical Facility) 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "Sr Districts Hospitals Beds",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "2. Chaghi DHQ Hospital Dalbandin 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 28.8862834,
+                "lon": 64.4008932,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "4. Panjgur DHQ Hospital Panjgur 12",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 26.9706859,
+                "lon": 64.095758,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "5. Kech DHQ Hospital Kech 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "6. Gwadar GDA Hospital 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 25.1863162,
+                "lon": 62.33314579999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "7. Washuk DHQ Hospital Washuk 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 27.7179036,
+                "lon": 64.8051555,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "8. Chaman DHQ Hospital Chaman 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.9253803,
+                "lon": 66.44907909999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "9. Killa Abdullah DHQ Hospital Killa Abdullah 14",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "10. Killa Saifullah DHQ Hospital Killa Saifullah 15",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.6979644,
+                "lon": 68.3547949,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "11. Zhob DHQ Hospital and BHU Qamardin Karez 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.3497081,
+                "lon": 69.4665363,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "12. Sheikh Khalifa Bin Zayed Hospital 225",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "13. Fatima Jinnah General and Chest Hospital 200",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.1925231,
+                "lon": 66.95376929999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "14. Lasbella DHQ Hospital Lasbella 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "TOTAL 14 (Medical Facilities) 534",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "Sr Districts Hospitals Beds",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "1. DHQ Hospital Abbottabad 15",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "2. Ayub Teaching Hospital 24",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.2039639,
+                "lon": 73.2364723,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "3. Abbottabad Medical Complex 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.2287511,
+                "lon": 73.2413693,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "4. Gillani Hospital 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "5. Cat-D Hospital Havellian 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.0434636,
+                "lon": 73.1408613,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "6. Cat-D Hospital Lora 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "7. Cat-D Hospital Boi 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "11. Bajaur DHQ Hospital Khar 8",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.7275843,
+                "lon": 71.4826934,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "12. DHQ Hospital Bannu 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.9789808,
+                "lon": 70.6201115,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "13. KGN Hospital Bannu 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.015465,
+                "lon": 70.7088232,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "14. Type-D Hospital Kakki 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "15. Bannu Type-D Hospital Janni Khel 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.8009383,
+                "lon": 70.508644,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "18. DHQ Hospital Battagram 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.8138583,
+                "lon": 72.9725084,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "19. Type-D Hospital Banna 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "22. Buner DHQ Hospital Buner 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.4964471,
+                "lon": 72.4626191,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "23. DHQ Hospital Charsadda 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "24. THQ Hospital Shabqadar 2",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.2185757,
+                "lon": 71.5545911,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "25. THQ Hospital Tangi 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "26. Cat-D Hospital Jamalabad 3",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 26.1982204,
+                "lon": 85.3911146,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "27. Chitral DHQ Hospital Lower Chitral 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 35.8539948,
+                "lon": 71.7866292,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "28. Cat-D Hospital Booni 2",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "29. Cat-D Hospital Drosh 2",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 35.4936576,
+                "lon": 71.8334145,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "32. Dera Ismail Khan Mufti Mehmood Memorial Hospital 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.819213,
+                "lon": 70.82467679999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "33. DHQ Hospital Timergara 15",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.8299034,
+                "lon": 71.8431641,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "36. Cat-D Hospital Wari 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "37. Cat-D Hospital Barawal 2",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 35.0901157,
+                "lon": 71.7601383,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "38. DHQ Hospital Hangu 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.5018605,
+                "lon": 71.0383165,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "39. Type-D Hospital Hangu 8",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.5223287,
+                "lon": 71.0616623,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "40. Hangu Type-D Hospital Thall 2",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.5223287,
+                "lon": 71.0616623,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "43. Type-D Hospital Ghazi 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "44. Type-D Hospital Sarai Namat Khan 2",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "45. Type-D Hospital Khanpur 2",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 28.5144594,
+                "lon": 77.2302469,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "47. Cat-D Hospital Takt Nasrati 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "48. Karak Cat-D Hospital BD Shah 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 22.5032012,
+                "lon": 88.3402759,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "49. Cat-D Hospital Sabirabad 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "50. DHQ Hospital Landikotal 15",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.0923178,
+                "lon": 71.1452229,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "51. THQ Hospital Dogra 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "52. Khyber Type-D Hospital Jamrud 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.000373,
+                "lon": 71.37985619999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "53. Pak-Afghan Dosti Hospital Torkham 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.1212185,
+                "lon": 71.0945084,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "54. DHQ Hospital Kohat 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.6135574,
+                "lon": 71.4716784,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "58. THQ Hospital Pattan 12",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.1804746,
+                "lon": 74.5424972,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "60. THQ Hospital Sada 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "62. Kurram Upper DHQ Hospital Parachinar 12",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.9040517,
+                "lon": 70.0868914,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "63. DHQ Hospital Lakki Marwat 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.6203911,
+                "lon": 70.79486949999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "64. Lakki Marwat Cat-C Hospital Lakki Marwat 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.613469,
+                "lon": 70.9011786,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "65. Cat-C Hospital Sarai Naurang 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "66. DHQ Hospital Batkhela 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.6105851,
+                "lon": 71.9606053,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "67. THQ Hospital Dargai 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.1798151,
+                "lon": 71.8882611,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "68. Cat-D Hospital Thana 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "73. Type-D Hospital Balakot 2",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.5481523,
+                "lon": 73.3531852,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "79. DHQ Hospital Mardan 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.1911495,
+                "lon": 72.04532449999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "80. Mardan Mardan Medical Complex (MMC) 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.1542416,
+                "lon": 72.027765,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "81. THQ Hospital Takhtbai 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "82. Mohmand DHQ Hospital Ghalanai 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.3193077,
+                "lon": 71.4117906,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "83. DHQ Hospital Miranshah 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.0023745,
+                "lon": 70.0687938,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "84. THQ Hospital Mirali 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "85. South Waziristan DHQ Hospital Wana 8",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.2987312,
+                "lon": 69.5970194,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "86. DHQ Hospital Nowshera 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.0112909,
+                "lon": 71.9744676,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "87. Mian Rashid Hussain Shaheed Memorial Hospital Pabbi 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.0091412,
+                "lon": 71.7981917,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "88. Cat-D Hospital Daag Ismail Khan 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "89. Nowshera Cat-D Hospital Akora Khattak 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.9949583,
+                "lon": 72.1356893,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "90. Cat-D Hospital Ziarat Kaka Sb 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "91. Cat-D Hospital Manki Sharif 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.9379181,
+                "lon": 71.97485379999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "92. Qazi Hussain Ahmed Medical Centre 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "93. Orakzai DHQ Hospital Meshti Mela 24",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "94. Lady Reading Hospital 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.0105666,
+                "lon": 71.568776,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "95. Khyber Teaching Hospital 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.9965638,
+                "lon": 71.48609689999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "96. Hayatabad Medical Complex 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.9925015,
+                "lon": 71.4496805,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "97. Services Hospital 60",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "98. DHQ Hospital Alpuri 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.9206383,
+                "lon": 72.6326376,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "99. Shangla THQ Hospital Besham 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.9110764,
+                "lon": 72.86631729999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "100. THQ Hospital Chota Lahore 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.0450906,
+                "lon": 72.35567879999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "101. Swabi Cat-C Hospital Topi 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.0772541,
+                "lon": 72.6210303,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "102. Nawaz Sharif Kidney Hospital 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "103. ZKS / THQ Hospital Matta 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.9263839,
+                "lon": 72.4134827,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "104. THQ Hospital Khawazakhela 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.9370602,
+                "lon": 72.46871519999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "105. Saidu Group of Teaching Hospitals 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "106. DHQ Hospital Tank 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "107. Cat-D Hospital Amakhel 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.3788744,
+                "lon": 70.5205436,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "TOTAL 110 (Medical Facilities) 856",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "Sr Districts Hospitals Beds",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "1. Attock IYB Hospital Attock 13",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.7911528,
+                "lon": 72.2471173,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "2. Bahawalpur Victoria Hospital / Civil Hospital / RHC 15",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 29.39025789999999,
+                "lon": 71.6810418,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "3. Bahawalnagar DHQ Hospital Bahawalnagar 2",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.00763,
+                "lon": 73.2536836,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "4. Bhakkar DHQ Hospital Bhakkar 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.6286602,
+                "lon": 71.08903370000002,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "5. Chakwal DHQ Hospital Chakwal 65",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.9316716,
+                "lon": 72.86272869999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "6. Chiniot DHQ Hospital Chiniot 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.7222103,
+                "lon": 72.9865259,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "7. Dera Ghazi Khan DHQ Hospital D.G. Khan 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.0471544,
+                "lon": 70.6382289,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "8. Faisalabad Allied Hospital / DHQ Hospital Faisalabad 47",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.4486231,
+                "lon": 73.08016959999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "9. Gujrat Aziz Bhatti Shaheed Teaching Hospital 1",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.5990897,
+                "lon": 74.0797377,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "10. Hafizabad DHQ / THQ Hospital Hafizabad 18",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.0719667,
+                "lon": 73.6803568,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "11. Jhang DHQ / THQ Hospital Jhang 35",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.2629472,
+                "lon": 72.33238779999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "12. Jhelum DHQ Hospital Jhelum 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.9470548,
+                "lon": 73.716822,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "13. Kasur DHQ Hospital Kasur 3",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.1360011,
+                "lon": 74.45830839999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "14. Khanewal DHQ Hospital Khanewal 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.2824388,
+                "lon": 71.91379549999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "15. Lahore Services Hospital 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.5409853,
+                "lon": 74.3323679,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "16. Layyah DHQ Hospital Layyah / RHC 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.9712664,
+                "lon": 70.9567506,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "17. Lodhran DHQ Hospital Lodhran 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "18. Mandibahauddin DHQ Hospital Mandibahauddin / RHC 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.5495249,
+                "lon": 73.4938195,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "19. Mianwali DHQ Hospital Mianwali 9",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.5806437,
+                "lon": 71.5432675,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "20. Multan DHQ Hospital Multan / Nishtar Hospital 45",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.2022375,
+                "lon": 71.44382809999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "21. DHQ Hospital Muzaffargarh 9",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "22. Muzaffargarh Erdogan Hospital 400",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "23. Nankanasahib DHQ Hospital Nankanasahib / RHC 6",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.4450751,
+                "lon": 73.7034687,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "24. Narowal DHQ / THQ Hospital Narowal / RHC 12",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.0991643,
+                "lon": 74.88389719999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "25. Okara DHQ Hospital Okara 36",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.8107701,
+                "lon": 73.443118,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "26. Pakpattan DHQ Hospital Pakpattan 15",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.3488338,
+                "lon": 73.3836048,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "27. Rajanpur DHQ Hospital Rajanpur 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 29.1041375,
+                "lon": 70.3304893,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "28. Rawalpindi Benazir Bhutto Hospital / Institute of Urology 50",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.62810220000001,
+                "lon": 73.0709243,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "29. Rahim Yar Khan SZ Hospital / THQ 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 28.4211565,
+                "lon": 70.2988744,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "30. Sahiwal DHQ / THQ Hospital Sahiwal / RHC 15",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.6681998,
+                "lon": 73.111356,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "31. Rajanpur DHQ Hospital Rajanpur 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 29.1041375,
+                "lon": 70.3304893,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "32. Sargodha DHQ Hospital Sargodha / RHC 7",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "33. Sheikhupura DHQ Hospital Sheikhupura / RHC 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 31.7118215,
+                "lon": 73.9788092,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "34. Sialkot Allama Iqbal Teaching Hospital 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.4925479,
+                "lon": 74.5311505,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "35. Toba Tek Singh DHQ Hospital Toba Tek Singh 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 30.9775769,
+                "lon": 72.4819243,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "TOTAL 50 (Medical Facilities) 955",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "Sr Districts Hospitals Beds",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "1. Jacobabad Jacobabad Medical Institute of Sciences (JMIS) 3",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "2. DHQ Hospital Khairpur 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 27.5189004,
+                "lon": 68.7439849,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "3. Khairpur Gambat Institute of Medical Sciences (GIMS) 8",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 27.5255625,
+                "lon": 68.75507329999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "4. Karachi Gudapp Hospital 120",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 24.8607343,
+                "lon": 67.0011364,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "5. Sukkur Sukkur Civil Hospital 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 27.7015498,
+                "lon": 68.8759561,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "TOTAL 4 (Medical Facilities) 151",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "Sr Districts Hospitals Beds",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "2. Muzaffarabad SKBZ Hospital 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "3. Civil Military Hospital 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "4. Divisional Headquarter Hospital 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "5. New City Hospital 50",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "6. Hattian Bala DHQ Hospital Hattian Bala 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 34.1707051,
+                "lon": 73.7441082,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "7. Neelum DHQ Hospital Neelum 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "8. DHQ Hospital Bagh 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.97367870000001,
+                "lon": 73.7919581,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "9. Chest Diseases General Hospital Hills 50",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "10. Haveli DHQ Hospital Haveli 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "11. Sudhnoti DHQ Hospital Sudhnoti 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "12. Bhimber DHQ Hospital Bhimber 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 32.9692134,
+                "lon": 74.05193539999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "13. DHQ Hospital Kotli 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 33.5111016,
+                "lon": 73.90080209999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "14. Kotli 2 x Hospital 100",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 45.3681215,
+                "lon": 14.0158025,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "TOTAL 15 (Medical Facilities) 310",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "Sr Districts Hospitals Beds",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "1. Civil Hospital Basin 7",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "2. Mohammadabad Hospital, Danyore 7",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 25.627264,
+                "lon": 83.74652619999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "3. Combined Military Hospital (CMH), Gilgit 20",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 35.920191,
+                "lon": 74.308008,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "4. PHQ Hospital Gilgit 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 35.920191,
+                "lon": 74.308008,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "5. City Hospital Gilgit 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "6. Leprosy Centre Ampary Gilgit 4",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "7. Psychiatry Hospital Jutial 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 35.9081927,
+                "lon": 74.36167979999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "11. Hunza Civil Hospital Karimabad 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "12. Nagar Civil Hospital Nagar 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "13. Diamer DHQ Hospital Chilas 10",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 35.4221765,
+                "lon": 74.0946311,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "14. Astore DHQ Hospital Astore 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 35.3466626,
+                "lon": 74.85732879999999,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "15. Ghizer DHQ Hospital Ghizer 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": 36.2796722,
+                "lon": 73.2765361,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "16. Kharmang Civil Hospital Kharmang 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "18. Benazir Hospital Gamba 5",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "TOTAL 21 (Medical Facilities) 126",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            },
+            {
+                "name": "GRAND TOTAL 215 (Medical Facilities) 2,942",
+                "contact": null,
+                "address": null,
+                "city": null,
+                "province": null,
+                "lat": null,
+                "lon": null,
+                "source": "covid_isolation_wards"
+            }
+        ]
+    }
+}

@@ -8,6 +8,7 @@ from typing import Any, Dict, Mapping
 from app.agents.base import AgentContext, BaseServiceAgent
 from app.models.dispatch import FrontAgentOutput, ServiceAgentResponse, ServiceType
 from app.services import police
+from app.services.enhanced_police import enhanced_police
 from app.utils.llm_client import LLMError, llm_client
 
 logger = logging.getLogger(__name__)
@@ -102,17 +103,28 @@ class PoliceServiceAgent(BaseServiceAgent):
             return "evidence_advice"
         return "non_emergency_guidance"
 
-    def perform_subservice(
+    async def perform_subservice_async(
         self, context: AgentContext, subservice: str, front_output: FrontAgentOutput
     ) -> ServiceAgentResponse:
         handler = self.subservices[subservice]
         if subservice == "emergency_response":
-            metadata = handler(context.request.userid, context.request.user_location)
+            # Use enhanced police service with real-time data
+            metadata = await enhanced_police.dispatch_unit(
+                context.request.userid, 
+                context.request.user_location,
+                context.request.lat,
+                context.request.lon
+            )
             follow_up_required = True
             follow_up_question = "Are you currently safe and sheltered?"
             action = "emergency_units_dispatched"
         elif subservice == "report_incident":
-            metadata = handler(context.request.userid, context.request.user_query)
+            # Use enhanced police service for incident reporting
+            metadata = await enhanced_police.create_incident_report(
+                context.request.userid, 
+                context.request.user_query,
+                context.request.user_location
+            )
             follow_up_required = True
             follow_up_question = "Provide suspect description or distinguishing features."
             action = "incident_report_created"

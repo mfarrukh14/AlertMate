@@ -8,6 +8,7 @@ from typing import Any, Dict, Mapping
 from app.agents.base import AgentContext, BaseServiceAgent
 from app.models.dispatch import FrontAgentOutput, ServiceAgentResponse, ServiceType
 from app.services import disaster
+from app.services.enhanced_fire import enhanced_fire
 from app.utils.llm_client import LLMError, llm_client
 
 logger = logging.getLogger(__name__)
@@ -104,12 +105,19 @@ class DisasterServiceAgent(BaseServiceAgent):
             return "mass_casualty_triage"
         return "situation_monitor"
 
-    def perform_subservice(
+    async def perform_subservice_async(
         self, context: AgentContext, subservice: str, front_output: FrontAgentOutput
     ) -> ServiceAgentResponse:
         handler = self.subservices[subservice]
         if subservice == "evacuation_guidance":
-            metadata = handler()
+            # Enhanced evacuation with real-time coordination
+            disaster_type = self._extract_disaster_type(context.request.user_query)
+            metadata = await enhanced_fire.create_disaster_response(
+                context.request.userid,
+                disaster_type,
+                context.request.user_location,
+                front_output.urgency
+            )
             follow_up_required = True
             follow_up_question = "How many people need evacuation assistance?"
             action = "evacuation_guidance_shared"
@@ -129,7 +137,14 @@ class DisasterServiceAgent(BaseServiceAgent):
             follow_up_question = "Provide status updates for each monitoring question."
             action = "situation_monitoring_engaged"
         elif subservice == "mass_casualty_triage":
-            metadata = handler()
+            # Enhanced mass casualty response
+            disaster_type = self._extract_disaster_type(context.request.user_query)
+            metadata = await enhanced_fire.create_disaster_response(
+                context.request.userid,
+                disaster_type,
+                context.request.user_location,
+                1  # High severity for mass casualty
+            )
             follow_up_required = True
             follow_up_question = "Number of injured individuals and their conditions?"
             action = "mass_casualty_guidance_provided"
@@ -147,3 +162,25 @@ class DisasterServiceAgent(BaseServiceAgent):
             follow_up_question=follow_up_question,
             metadata=metadata,
         )
+    
+    def _extract_disaster_type(self, user_query: str) -> str:
+        """Extract disaster type from user query."""
+        query_lower = user_query.lower()
+        
+        disaster_types = {
+            "fire": ["fire", "burning", "flame", "smoke"],
+            "earthquake": ["earthquake", "quake", "tremor", "shaking"],
+            "flood": ["flood", "flooding", "water", "rain"],
+            "storm": ["storm", "hurricane", "tornado", "wind"],
+            "explosion": ["explosion", "explode", "blast", "bomb"],
+            "gas_leak": ["gas", "leak", "smell"],
+            "building_collapse": ["collapse", "building", "structure"],
+            "chemical_spill": ["chemical", "spill", "toxic"],
+            "power_outage": ["power", "electricity", "outage", "blackout"]
+        }
+        
+        for disaster_type, keywords in disaster_types.items():
+            if any(keyword in query_lower for keyword in keywords):
+                return disaster_type
+        
+        return "general_disaster"
