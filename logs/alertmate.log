@@ -145,3 +145,83 @@ keywords
 2025-09-27 18:06:58,030 [INFO] alertmate.server :: Chat completed
 2025-09-27 18:21:25,490 [ERROR] alertmate.server :: Validation error: [{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, password must include mixed case characters', 'input': '12345678', 'ctx': {'error': ValueError('password must include mixed case characters')}}]
 2025-09-27 18:21:52,751 [INFO] alertmate.server :: Signup attempt
+2025-09-27 19:11:59,586 [ERROR] alertmate.server :: Validation error: [{'type': 'value_error', 'loc': ('body', 'cnic'), 'msg': 'Value error, cnic must contain exactly 13 digits', 'input': '12345', 'ctx': {'error': ValueError('cnic must contain exactly 13 digits')}}, {'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, password must include mixed case characters', 'input': 'qwer1234.', 'ctx': {'error': ValueError('password must include mixed case characters')}}]
+2025-09-27 19:15:56,657 [ERROR] alertmate.server :: Validation error: [{'type': 'string_too_short', 'loc': ('body', 'password'), 'msg': 'String should have at least 8 characters', 'input': 'qwer123', 'ctx': {'min_length': 8}}]
+2025-09-27 19:16:39,397 [ERROR] alertmate.server :: Validation error: [{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, password must include mixed case characters', 'input': 'qwer1234', 'ctx': {'error': ValueError('password must include mixed case characters')}}]
+2025-09-27 19:16:51,877 [ERROR] alertmate.server :: Validation error: [{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, password must include mixed case characters', 'input': 'qwer1234', 'ctx': {'error': ValueError('password must include mixed case characters')}}]
+2025-09-27 19:18:21,682 [ERROR] alertmate.server :: Validation error: [{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, password must include mixed case characters', 'input': 'qwer1234', 'ctx': {'error': ValueError('password must include mixed case characters')}}]
+2025-09-27 19:19:04,777 [ERROR] alertmate.server :: Validation error: [{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, password must include mixed case characters', 'input': 'qwer1234', 'ctx': {'error': ValueError('password must include mixed case characters')}}]
+2025-09-27 19:20:33,780 [ERROR] alertmate.server :: Validation error: [{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, password must include mixed case characters', 'input': 'qwer1234'}]
+2025-09-27 19:21:57,775 [INFO] alertmate.server :: Signup attempt
+2025-09-27 19:26:52,064 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 19:26:52,084 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 19:26:53,221 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 19:26:53,221 [INFO] app.agents.router :: Front agent output
+2025-09-27 19:26:53,235 [INFO] app.agents.router :: Queued service task
+2025-09-27 19:26:53,235 [INFO] alertmate.server :: Chat completed
+2025-09-27 19:30:12,308 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 19:30:12,335 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 19:30:13,066 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 19:30:13,082 [INFO] app.agents.router :: Front agent output
+2025-09-27 19:30:13,654 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 19:30:13,667 [INFO] app.agents.router :: Service agent response
+2025-09-27 19:30:13,684 [ERROR] alertmate.server :: Unhandled error during chat
+Traceback (most recent call last):
+  File "K:\Hackathon\AlertMate\server.py", line 221, in chat_endpoint
+    front_output, service_response = await asyncio.to_thread(
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\asyncio\threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "K:\Hackathon\AlertMate\app\agents\router.py", line 183, in process
+    service_message = self._format_service_message(service_response)
+  File "K:\Hackathon\AlertMate\app\agents\router.py", line 233, in _format_service_message
+    parts.append(f"Metadata: {json.dumps(service_response.metadata, ensure_ascii=False)}")
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\json\encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\json\encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\json\encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type set is not JSON serializable
+2025-09-27 19:30:57,688 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 19:30:57,701 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 19:30:58,335 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 19:30:58,335 [INFO] app.agents.router :: Front agent output
+2025-09-27 19:30:58,856 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 19:30:58,869 [INFO] app.agents.router :: Service agent response
+2025-09-27 19:30:58,885 [ERROR] alertmate.server :: Unhandled error during chat
+Traceback (most recent call last):
+  File "K:\Hackathon\AlertMate\server.py", line 221, in chat_endpoint
+    front_output, service_response = await asyncio.to_thread(
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\asyncio\threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "K:\Hackathon\AlertMate\app\agents\router.py", line 183, in process
+    service_message = self._format_service_message(service_response)
+  File "K:\Hackathon\AlertMate\app\agents\router.py", line 233, in _format_service_message
+    parts.append(f"Metadata: {json.dumps(service_response.metadata, ensure_ascii=False)}")
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\json\encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\json\encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python310\lib\json\encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type set is not JSON serializable
+2025-09-27 19:31:24,731 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 19:31:24,742 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 19:31:25,427 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 19:31:25,427 [INFO] app.agents.router :: Front agent output
+2025-09-27 19:31:25,444 [INFO] app.agents.router :: Queued service task
+2025-09-27 19:31:25,467 [INFO] alertmate.server :: Chat completed
+2025-09-27 19:32:10,999 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 19:32:11,019 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 19:32:11,830 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 19:32:11,830 [INFO] app.agents.router :: Front agent output
+2025-09-27 19:32:11,897 [INFO] app.agents.router :: Queued service task
+2025-09-27 19:32:11,911 [INFO] alertmate.server :: Chat completed

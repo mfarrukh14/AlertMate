@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, TypedDict
 
 from langgraph.graph import END, StateGraph
@@ -70,7 +70,7 @@ class DispatchRouter:
                     {
                         "role": ConversationRole.AGENT.value,
                         "content": front_summary,
-                        "created_at": datetime.now(UTC).isoformat(),
+                        "created_at": datetime.now(timezone.utc).isoformat(),
                     }
                 )
             return {"front_output": front_output, "history": updated_history}

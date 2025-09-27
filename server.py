@@ -15,6 +15,7 @@ import uvicorn
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from pydantic import ValidationError
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.agents.base import AgentError
 from app.agents.router import DispatchRouter
@@ -50,6 +51,14 @@ app = FastAPI(
     title="AlertMate Dispatch Service",
     version="0.1.0",
     description="MVP FastAPI + LangGraph multi-agent router",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
 
 dispatch_router = DispatchRouter()
@@ -105,10 +114,22 @@ async def agent_error_handler(_, exc: AgentError):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(_, exc: RequestValidationError):
-    logger.error("Validation error: %s", exc.errors())
+    # Convert errors to JSON-serializable format by manually extracting only safe fields
+    serializable_errors = []
+    for error in exc.errors():
+        # Create a new dict with only the fields we want, avoiding any non-serializable content
+        safe_error = {}
+        for key in ["type", "loc", "msg", "input"]:
+            if key in error:
+                safe_error[key] = error[key]
+        serializable_errors.append(safe_error)
+    
+    # Log the safe errors instead of the raw errors
+    logger.error("Validation error: %s", serializable_errors)
+    
     return JSONResponse(
         status_code=422,
-        content={"detail": exc.errors()},
+        content={"detail": serializable_errors},
     )
 
 
