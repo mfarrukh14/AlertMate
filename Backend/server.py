@@ -41,6 +41,13 @@ from app.services.user_service import (
     authenticate_user,
 )
 from app.services.auth import verify_password
+from app.services.admin import (
+    get_dashboard_stats,
+    get_active_queue,
+    get_recent_activity,
+    get_service_distribution,
+    get_dispatch_locations,
+)
 from app.config import SESSION_SECRET_KEY, SESSION_COOKIE_NAME, SESSION_MAX_AGE
 from app.utils.session import create_session_token, verify_session_token, get_session_expiry
 
@@ -397,43 +404,48 @@ def get_user_endpoint(
 
 # Admin API endpoints
 @app.get("/api/v1/admin/stats")
-async def get_admin_stats(current_user: UserResponse = Depends(require_auth)) -> Dict[str, Any]:
+async def get_admin_stats(
+    current_user: UserResponse = Depends(require_auth),
+    session: Session = Depends(get_session)
+) -> Dict[str, Any]:
     """Get admin dashboard statistics."""
-    # TODO: Implement real stats from database
-    return {
-        "active_emergencies": 12,
-        "total_users": 834,
-        "tasks_completed": 276,
-        "average_response_time": 23.5
-    }
+    return get_dashboard_stats(session)
 
 
 @app.get("/api/v1/admin/queue")
-async def get_admin_queue(current_user: UserResponse = Depends(require_auth)) -> List[Dict[str, Any]]:
+async def get_admin_queue(
+    current_user: UserResponse = Depends(require_auth),
+    session: Session = Depends(get_session)
+) -> List[Dict[str, Any]]:
     """Get active task queue for admin dashboard."""
-    # TODO: Implement real queue data from database
-    return [
-        {
-            "id": 1,
-            "service": "medical",
-            "priority": 3,
-            "created_at": datetime.now().isoformat(),
-            "user_location": "Karachi, PK"
-        }
-    ]
+    return get_active_queue(session)
 
 
 @app.get("/api/v1/admin/activity")
-async def get_admin_activity(current_user: UserResponse = Depends(require_auth)) -> List[Dict[str, Any]]:
+async def get_admin_activity(
+    current_user: UserResponse = Depends(require_auth),
+    session: Session = Depends(get_session)
+) -> List[Dict[str, Any]]:
     """Get recent activity for admin dashboard."""
-    # TODO: Implement real activity data from database
-    return [
-        {
-            "type": "medical",
-            "message": "Medical emergency resolved in Karachi",
-            "timestamp": datetime.now().isoformat()
-        }
-    ]
+    return get_recent_activity(session)
+
+
+@app.get("/api/v1/admin/service-distribution")
+async def get_admin_service_distribution(
+    current_user: UserResponse = Depends(require_auth),
+    session: Session = Depends(get_session)
+) -> Dict[str, int]:
+    """Get service distribution for charts."""
+    return get_service_distribution(session)
+
+
+@app.get("/api/v1/admin/dispatch-locations")
+async def get_admin_dispatch_locations(
+    current_user: UserResponse = Depends(require_auth),
+    session: Session = Depends(get_session)
+) -> List[Dict[str, Any]]:
+    """Get dispatch locations for map visualization."""
+    return get_dispatch_locations(session)
 
 
 @app.get("/health")
