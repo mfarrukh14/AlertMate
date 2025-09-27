@@ -944,6 +944,10 @@ def get_chat_page() -> str:
             sendText.innerHTML = '<span class="loading"></span> Processing...';
             
             try {
+                // Assume good network quality for web users
+                const networkQuality = 'fast';
+                const connectionType = 'wifi';
+                
                 const response = await fetch('/api/v1/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
