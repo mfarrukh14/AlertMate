@@ -11,6 +11,15 @@ from pydantic import ValidationError
 
 from app.models.dispatch import DispatchRequest, FrontAgentOutput, ServiceType
 from app.utils.llm_client import LLMError, llm_client
+from app.utils.urdu_language import (
+    detect_urdu_language,
+    extract_urdu_keywords,
+    is_urdu_greeting,
+    get_urdu_service_keywords,
+    get_urdu_urgency_level,
+    get_urdu_follow_up_message,
+    transliterate_roman_to_urdu,
+)
 
 _STOPWORDS = {
     "i",
@@ -171,24 +180,33 @@ class FrontDispatcherAgent:
     """Front dispatcher using Groq LLM with rule-based fallback."""
 
     def extract_keywords(self, query: str) -> List[str]:
-        query = query.lower()
-        raw_tokens = re.findall(r"[a-z0-9']+", query)
+        # Detect language
+        language = detect_urdu_language(query)
+        
+        # Extract Urdu-specific keywords first
+        urdu_keywords = extract_urdu_keywords(query, language)
+        
+        # Extract English keywords
+        query_lower = query.lower()
+        raw_tokens = re.findall(r"[a-z0-9']+", query_lower)
         filtered = [token for token in raw_tokens if token not in _STOPWORDS and len(token) > 2]
 
         counts = Counter(filtered)
-        keywords: List[str] = []
+        english_keywords: List[str] = []
 
         for phrase, pattern in _PHRASE_PATTERNS:
-            if pattern.search(query):
-                keywords.append(phrase)
+            if pattern.search(query_lower):
+                english_keywords.append(phrase)
 
         for token, _ in counts.most_common():
-            if token not in keywords:
-                keywords.append(token)
-            if len(keywords) >= 8:
+            if token not in english_keywords:
+                english_keywords.append(token)
+            if len(english_keywords) >= 8:
                 break
 
-        return keywords[:8]
+        # Combine Urdu and English keywords, prioritizing emergency-related ones
+        all_keywords = urdu_keywords + english_keywords
+        return all_keywords[:8]
 
     def _ensure_minimum_keywords(self, keywords: List[str], query: str) -> List[str]:
         normalized = [kw.strip() for kw in keywords if kw and kw.strip()]
@@ -219,6 +237,11 @@ class FrontDispatcherAgent:
         if not normalized:
             return True
 
+        # Check for Urdu greetings
+        if is_urdu_greeting(query):
+            return True
+
+        # Check for English greetings
         if normalized in _GREETINGS:
             return True
 
@@ -228,7 +251,16 @@ class FrontDispatcherAgent:
 
         # Detect emergency indicators to avoid misclassifying critical incidents.
         emergency_tokens = set().union(*_SERVICE_KEYWORDS.values()) | _URGENCY_1_TOKENS | _URGENCY_2_TOKENS
-        if any(token in emergency_tokens for token in tokens):
+        
+        # Add Urdu emergency keywords
+        urdu_emergency_tokens = set()
+        for service_type in ServiceType:
+            if service_type != ServiceType.GENERAL:
+                urdu_emergency_tokens.update(get_urdu_service_keywords(service_type.value))
+        
+        all_emergency_tokens = emergency_tokens | urdu_emergency_tokens
+        
+        if any(token in all_emergency_tokens for token in tokens):
             return False
 
         if len(tokens) <= 3:
@@ -238,8 +270,10 @@ class FrontDispatcherAgent:
 
     def classify_service(self, query: str, keywords: Iterable[str]) -> Tuple[ServiceType, str, bool, str]:
         query_lower = query.lower()
+        language = detect_urdu_language(query)
         matched_scores = {service: 0 for service in (ServiceType.MEDICAL, ServiceType.POLICE, ServiceType.DISASTER)}
 
+        # Check English keywords
         for keyword in keywords:
             for service, service_words in _SERVICE_KEYWORDS.items():
                 if keyword in service_words:
@@ -249,12 +283,28 @@ class FrontDispatcherAgent:
                 1 for word in service_words if word in query_lower
             )
 
+        # Check Urdu keywords
+        for service_type in (ServiceType.MEDICAL, ServiceType.POLICE, ServiceType.DISASTER):
+            urdu_keywords = get_urdu_service_keywords(service_type.value)
+            for keyword in keywords:
+                if keyword in urdu_keywords:
+                    matched_scores[service_type] += 2
+            matched_scores[service_type] += sum(
+                1 for word in urdu_keywords if word in query_lower
+            )
+
         selected_service = max(matched_scores, key=lambda svc: matched_scores[svc])
         confidence = matched_scores[selected_service]
         follow_up_required = confidence < 2
+        
+        # Build reason with both English and Urdu keywords
+        english_matches = set(_SERVICE_KEYWORDS[selected_service]) & set(keywords)
+        urdu_matches = set(get_urdu_service_keywords(selected_service.value)) & set(keywords)
+        all_matches = english_matches | urdu_matches
+        
         reason = (
             f"Selected {selected_service.value} based on keywords: "
-            + ", ".join(sorted(set(_SERVICE_KEYWORDS[selected_service]) & set(keywords)))
+            + ", ".join(sorted(all_matches))
             if confidence > 0
             else "Low confidence classification; requesting follow-up"
         )
@@ -267,8 +317,16 @@ class FrontDispatcherAgent:
 
     def determine_urgency(self, query: str, keywords: Iterable[str]) -> Tuple[int, str]:
         query_lower = query.lower()
+        language = detect_urdu_language(query)
+        
+        # Check Urdu urgency first
+        urdu_urgency, urdu_reason = get_urdu_urgency_level(query, language)
+        if urdu_urgency < 3:
+            return urdu_urgency, urdu_reason
+        
         tokens = {token.lower() for token in keywords}
 
+        # Check English urgency indicators
         for phrase in _URGENCY_1:
             if phrase in query_lower:
                 return 1, f"Detected critical phrase: '{phrase}'"
@@ -315,19 +373,38 @@ class FrontDispatcherAgent:
         if history:
             payload["conversation_history"] = history
 
-        system_prompt = (
-            "You are the Front Dispatcher. Receive JSON with userid, user_location, lang, lat, lon, "
-            "user_query, and helper keyword hints."
-            "\nFollow the rules strictly:\n"
-            "1) Extract 3-8 concise keywords or short phrases from user_query."
-            "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety; 2 = serious but not immediately fatal; 3 = informational."
-            "\n3) Choose selected_service from ['medical','police','disaster','general']. Use 'general' for greetings, wellness check-ins, or messages without actionable emergency clues."
-            "\n4) Provide a short explanation that mentions both urgency and service reasons."
-            "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
-            "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
-            "follow_up_required (bool), follow_up_reason (string or null)."
-            "\nOnly respond with JSON, no extra text."
-        )
+        # Detect language for appropriate prompt
+        language = detect_urdu_language(request.user_query)
+        
+        if language in ['urdu', 'roman_urdu', 'mixed']:
+            system_prompt = (
+                "You are the Front Dispatcher for emergency services. You can handle Urdu, Roman Urdu, and English. "
+                "Receive JSON with userid, user_location, lang, lat, lon, user_query, and helper keyword hints."
+                "\nFollow the rules strictly:\n"
+                "1) Extract 3-8 concise keywords or short phrases from user_query (can be in Urdu, Roman Urdu, or English)."
+                "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety; 2 = serious but not immediately fatal; 3 = informational."
+                "\n3) Choose selected_service from ['medical','police','disaster','general']. Use 'general' for greetings, wellness check-ins, or messages without actionable emergency clues."
+                "\n4) Provide a short explanation that mentions both urgency and service reasons."
+                "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
+                "\n6) For Urdu greetings like 'salam', 'salaam alaikum', route to 'general' service."
+                "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
+                "follow_up_required (bool), follow_up_reason (string or null)."
+                "\nOnly respond with JSON, no extra text."
+            )
+        else:
+            system_prompt = (
+                "You are the Front Dispatcher. Receive JSON with userid, user_location, lang, lat, lon, "
+                "user_query, and helper keyword hints."
+                "\nFollow the rules strictly:\n"
+                "1) Extract 3-8 concise keywords or short phrases from user_query."
+                "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety; 2 = serious but not immediately fatal; 3 = informational."
+                "\n3) Choose selected_service from ['medical','police','disaster','general']. Use 'general' for greetings, wellness check-ins, or messages without actionable emergency clues."
+                "\n4) Provide a short explanation that mentions both urgency and service reasons."
+                "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
+                "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
+                "follow_up_required (bool), follow_up_reason (string or null)."
+                "\nOnly respond with JSON, no extra text."
+            )
 
         result = llm_client.structured_completion(
             system_prompt=system_prompt,
@@ -358,7 +435,7 @@ class FrontDispatcherAgent:
         if route_general:
             result["selected_service"] = ServiceType.GENERAL.value
             result["follow_up_required"] = True
-            result["follow_up_reason"] = "Could you describe the emergency or how I can assist you today?"
+            result["follow_up_reason"] = get_urdu_follow_up_message(language)
 
         heur_urgency, heur_reason = self.determine_urgency(request.user_query, heur_keywords)
         if heur_urgency < result.get("urgency", 3):
@@ -379,8 +456,9 @@ class FrontDispatcherAgent:
         keywords = self._ensure_minimum_keywords(raw_keywords, request.user_query)
 
         if route_general:
+            language = detect_urdu_language(request.user_query)
             explain = "Identified a general greeting or low-information message; awaiting more details before routing."
-            follow_up = "Could you describe the emergency or how I can assist you today?"
+            follow_up = get_urdu_follow_up_message(language)
             general_keywords = keywords if keywords else ["greeting", "general", "follow_up_needed"]
             return FrontAgentOutput(
                 keywords=general_keywords[:8],
