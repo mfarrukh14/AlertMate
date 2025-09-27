@@ -267,6 +267,10 @@ def signup_endpoint(
         session.rollback()
         logger.error("Validation error during signup", extra={"errors": exc.errors()})
         raise HTTPException(status_code=422, detail=f"Validation error: {exc.errors()}") from exc
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        session.rollback()
+        raise
     except Exception as exc:  # pragma: no cover - defensive
         session.rollback()
         logger.exception("Failed to register user", extra={"error": str(exc)})
@@ -327,6 +331,10 @@ def login_endpoint(
             "user": UserResponse.model_validate(user).model_dump(mode="json")
         }
         
+    except HTTPException:
+        # Re-raise HTTP exceptions (like 401 Unauthorized) as-is
+        session.rollback()
+        raise
     except Exception as exc:  # pragma: no cover - defensive
         session.rollback()
         logger.exception("Login failed", extra={"email": payload.email, "error": str(exc)})

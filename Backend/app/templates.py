@@ -379,6 +379,7 @@ def get_login_signup_page() -> str:
                     showMessage('login-message', 'Login successful! Redirecting to chat...', false);
                     setTimeout(() => window.location.href = '/chat', 1500);
                 } else {
+                    console.error('Login failed:', response.status, result);
                     showMessage('login-message', result.detail || 'Login failed', true);
                 }
             } catch (error) {
@@ -417,6 +418,7 @@ def get_login_signup_page() -> str:
                     showMessage('signup-message', 'Account created successfully! Redirecting to chat...', false);
                     setTimeout(() => window.location.href = '/chat', 1500);
                 } else {
+                    console.error('Signup failed:', response.status, result);
                     showMessage('signup-message', result.detail || 'Signup failed', true);
                 }
             } catch (error) {
