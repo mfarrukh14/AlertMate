@@ -20,6 +20,7 @@ export const authService = {
 // Chat service
 export const chatService = {
   sendMessage: (messageData) => api.post('/chat', messageData),
+  getChatHistory: () => api.get('/chat/history'),
 };
 
 // Admin services
@@ -27,6 +28,8 @@ export const adminService = {
   getStats: () => api.get('/admin/stats'),
   getQueue: () => api.get('/admin/queue'),
   getActivity: () => api.get('/admin/activity'),
+  getServiceDistribution: () => api.get('/admin/service-distribution'),
+  getDispatchLocations: () => api.get('/admin/dispatch-locations'),
 };
 
 export default api;

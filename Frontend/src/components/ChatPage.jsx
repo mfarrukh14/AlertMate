@@ -7,6 +7,7 @@ const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(true);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -17,10 +18,37 @@ const ChatPage = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Load chat history on component mount
   useEffect(() => {
-    // Add initial connection message
-    addMessage('Connected to AlertMate Emergency Services', 'system', new Date());
-  }, []);
+    const loadChatHistory = async () => {
+      setLoadingHistory(true);
+      try {
+        const response = await chatService.getChatHistory();
+        if (response.data && response.data.messages && response.data.messages.length > 0) {
+          const historyMessages = response.data.messages.map((msg, index) => ({
+            id: `history-${index}`,
+            content: msg.content,
+            type: msg.role === 'user' ? 'user' : 'agent',
+            timestamp: new Date(msg.created_at),
+          }));
+          setMessages(historyMessages);
+        } else {
+          // Add initial connection message if no history
+          addMessage('Connected to AlertMate Emergency Services', 'system', new Date());
+        }
+      } catch (error) {
+        console.error('Failed to load chat history:', error);
+        // Add initial connection message on error
+        addMessage('Connected to AlertMate Emergency Services', 'system', new Date());
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+
+    if (user) {
+      loadChatHistory();
+    }
+  }, [user]);
 
   const addMessage = (content, type = 'agent', timestamp = new Date()) => {
     const newMessage = {
@@ -110,7 +138,15 @@ const ChatPage = () => {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto mb-6 space-y-4 pr-2">
-              {messages.map((message) => (
+              {loadingHistory && (
+                <div className="flex justify-center items-center py-8">
+                  <div className="flex items-center gap-3 text-slate-400">
+                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
+                    Loading chat history...
+                  </div>
+                </div>
+              )}
+              {!loadingHistory && messages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}

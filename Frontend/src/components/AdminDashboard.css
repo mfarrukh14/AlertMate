@@ -106,7 +106,7 @@
     border: 1px solid #e5e7eb;
 }
 
-/* Flashing markers */
+/* Flashing markers for active dispatches */
 @keyframes flash {
     0%, 50% { opacity: 1; }
     51%, 100% { opacity: 0.3; }
@@ -122,6 +122,13 @@
 
 .marker-dot.flashing {
     animation: flash 1.5s infinite;
+}
+
+.marker-dot.static {
+    width: 10px;
+    height: 10px;
+    border: 2px solid white;
+    opacity: 0.8;
 }
 
 .marker-popup {
