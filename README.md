@@ -14,6 +14,11 @@ Minimal FastAPI + LangGraph multi-agent router that triages emergency requests a
 - Rotating file + console logging pipeline for observability.
 - Friendly landing page at `/` linking to Swagger UI, OpenAPI JSON, and chat usage tips.
 
+## Design Diagram
+
+
+![Design Diagram](/Design_diagram.png)
+
 ## Setup
 
 ```powershell
