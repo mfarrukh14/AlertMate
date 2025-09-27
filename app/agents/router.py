@@ -1,22 +1,38 @@
-"""Coordinator that emulates LangGraph routing between agents."""
+"""LangGraph-powered coordinator between the front and service agents."""
 
 from __future__ import annotations
 
+import json
 import logging
-from typing import Dict
+from datetime import UTC, datetime
+from typing import Any, Dict, List, TypedDict
+
+from langgraph.graph import END, StateGraph
 
 from app.agents.base import AgentContext, AgentError, BaseServiceAgent
 from app.agents.disaster_agent import DisasterServiceAgent
 from app.agents.front_agent import FrontDispatcherAgent
 from app.agents.medical_agent import MedicalServiceAgent
 from app.agents.police_agent import PoliceServiceAgent
+from app.db import session_scope
+from app.db.models import ConversationRole
 from app.models.dispatch import DispatchRequest, FrontAgentOutput, ServiceAgentResponse, ServiceType
+from app.services.memory import ensure_user, get_recent_messages, record_message
+from app.services.queue_service import enqueue_task
 
 logger = logging.getLogger(__name__)
 
 
+class DispatchState(TypedDict, total=False):
+    request: DispatchRequest
+    trace_id: str
+    history: List[dict]
+    front_output: FrontAgentOutput
+    service_response: ServiceAgentResponse
+
+
 class DispatchRouter:
-    """High-level orchestrator matching the LangGraph topology requirements."""
+    """High-level orchestrator implemented as a LangGraph workflow."""
 
     def __init__(self) -> None:
         self.front_agent = FrontDispatcherAgent()
@@ -25,31 +41,191 @@ class DispatchRouter:
             ServiceType.POLICE: PoliceServiceAgent(),
             ServiceType.DISASTER: DisasterServiceAgent(),
         }
+        self._graph = self._build_graph()
+
+    def _build_graph(self):
+        workflow = StateGraph(DispatchState)
+
+        def run_front(state: DispatchState) -> Dict[str, Any]:
+            request = state["request"]
+            trace_id = state["trace_id"]
+            history = state.get("history") or []
+            logger.info(
+                "Front agent dispatch",
+                extra={"trace_id": trace_id, "userid": request.userid},
+            )
+            front_output = self.front_agent.run(request, history)
+            logger.info(
+                "Front agent output",
+                extra={
+                    "trace_id": trace_id,
+                    "selected_service": front_output.selected_service.value,
+                    "urgency": front_output.urgency,
+                },
+            )
+            front_summary = self._format_front_message(front_output)
+            updated_history = list(history)
+            if front_summary:
+                updated_history.append(
+                    {
+                        "role": ConversationRole.AGENT.value,
+                        "content": front_summary,
+                        "created_at": datetime.now(UTC).isoformat(),
+                    }
+                )
+            return {"front_output": front_output, "history": updated_history}
+
+        def route_service(state: DispatchState) -> str:
+            service = state.get("front_output")
+            if not service:
+                raise AgentError("Front agent did not produce an output")
+            if service.selected_service == ServiceType.GENERAL:
+                return ServiceType.GENERAL.value
+            if service.selected_service not in self.service_agents:
+                raise AgentError(f"Unsupported service: {service.selected_service}")
+            return service.selected_service.value
+
+        def make_service_node(service_type: ServiceType):
+            def _run_service(state: DispatchState) -> Dict[str, Any]:
+                front_output = state.get("front_output")
+                if not front_output:
+                    raise AgentError("Missing front agent output before service routing")
+                agent = self.service_agents.get(service_type)
+                if not agent:
+                    raise AgentError(f"Unsupported service: {service_type}")
+
+                context = AgentContext(
+                    request=state["request"],
+                    trace_id=state["trace_id"],
+                    front_output=front_output,
+                    history=state.get("history"),
+                )
+                service_response = agent.run(context, front_output)
+                logger.info(
+                    "Service agent response",
+                    extra={
+                        "trace_id": state["trace_id"],
+                        "service": service_response.service.value,
+                        "subservice": service_response.subservice,
+                    },
+                )
+                return {"service_response": service_response}
+
+            return _run_service
+
+        workflow.add_node("front_agent", run_front)
+        for service_type in (ServiceType.MEDICAL, ServiceType.POLICE, ServiceType.DISASTER):
+            workflow.add_node(f"{service_type.value}_agent", make_service_node(service_type))
+            workflow.add_edge(f"{service_type.value}_agent", END)
+
+        def handle_general(state: DispatchState) -> Dict[str, Any]:
+            front_output = state.get("front_output")
+            if not front_output:
+                raise AgentError("General handler missing front agent output")
+
+            follow_up = front_output.follow_up_reason or "Could you describe the emergency or assistance you need?"
+            service_response = ServiceAgentResponse(
+                service=ServiceType.GENERAL,
+                subservice="awaiting_details",
+                action_taken=None,
+                follow_up_required=True,
+                follow_up_question=follow_up,
+                metadata={
+                    "note": "Front agent awaiting additional context",
+                },
+            )
+            return {"service_response": service_response}
+
+        workflow.add_node("general_handler", handle_general)
+        workflow.add_edge("general_handler", END)
+
+        workflow.set_entry_point("front_agent")
+        workflow.add_conditional_edges(
+            "front_agent",
+            route_service,
+            {
+                ServiceType.MEDICAL.value: "medical_agent",
+                ServiceType.POLICE.value: "police_agent",
+                ServiceType.DISASTER.value: "disaster_agent",
+                ServiceType.GENERAL.value: "general_handler",
+            },
+        )
+
+        return workflow.compile()
 
     def process(self, request: DispatchRequest, trace_id: str) -> tuple[FrontAgentOutput, ServiceAgentResponse]:
         logger.info("Processing dispatch request", extra={"trace_id": trace_id, "userid": request.userid})
-        front_output = self.front_agent.run(request)
-        logger.info(
-            "Front agent output",
-            extra={
+        with session_scope() as session:
+            ensure_user(session, request.userid)
+            history = get_recent_messages(session, request.userid, limit=12)
+            result_state = self._graph.invoke({
+                "request": request,
                 "trace_id": trace_id,
-                "selected_service": front_output.selected_service.value,
-                "urgency": front_output.urgency,
-            },
-        )
+                "history": history,
+            })
 
-        agent = self.service_agents.get(front_output.selected_service)
-        if not agent:
-            raise AgentError(f"Unsupported service: {front_output.selected_service}")
+            front_output = result_state.get("front_output")
+            service_response = result_state.get("service_response")
+            if not front_output or not service_response:
+                raise AgentError("Dispatch graph did not produce required outputs")
 
-        context = AgentContext(request=request, trace_id=trace_id, front_output=front_output)
-        service_response = agent.run(context, front_output)
-        logger.info(
-            "Service agent response",
-            extra={
-                "trace_id": trace_id,
-                "service": service_response.service.value,
-                "subservice": service_response.subservice,
-            },
-        )
-        return front_output, service_response
+            user_text = (request.user_query or "").strip()
+            if user_text:
+                record_message(session, request.userid, ConversationRole.USER, user_text)
+
+            front_message = self._format_front_message(front_output)
+            if front_message:
+                record_message(session, request.userid, ConversationRole.AGENT, front_message)
+
+            service_message = self._format_service_message(service_response)
+            if service_message:
+                record_message(session, request.userid, ConversationRole.AGENT, service_message)
+
+            recent_history = get_recent_messages(session, request.userid, limit=12)
+            task_payload = {
+                "user_id": request.userid,
+                "user_location": request.user_location,
+                "history": recent_history,
+                "front_agent": front_output.model_dump(mode="json"),
+                "service_response": service_response.model_dump(mode="json"),
+            }
+            task = enqueue_task(
+                session,
+                trace_id=trace_id,
+                service=service_response.service,
+                priority=front_output.urgency,
+                payload=task_payload,
+            )
+            logger.info(
+                "Queued service task",
+                extra={
+                    "trace_id": trace_id,
+                    "task_id": task.id,
+                    "service": service_response.service.value,
+                    "priority": task.priority,
+                },
+            )
+
+            return front_output, service_response
+
+    @staticmethod
+    def _format_front_message(front_output: FrontAgentOutput) -> str:
+        parts: List[str] = []
+        if front_output.explain:
+            parts.append(front_output.explain)
+        if front_output.follow_up_required and front_output.follow_up_reason:
+            parts.append(f"Follow-up: {front_output.follow_up_reason}")
+        return "\n".join(part for part in parts if part).strip()
+
+    @staticmethod
+    def _format_service_message(service_response: ServiceAgentResponse) -> str:
+        parts: List[str] = [
+            f"Service: {service_response.service.value} ({service_response.subservice})"
+        ]
+        if service_response.action_taken:
+            parts.append(f"Action: {service_response.action_taken}")
+        if service_response.follow_up_required and service_response.follow_up_question:
+            parts.append(f"Follow-up: {service_response.follow_up_question}")
+        if service_response.metadata:
+            parts.append(f"Metadata: {json.dumps(service_response.metadata, ensure_ascii=False)}")
+        return "\n".join(part for part in parts if part).strip()

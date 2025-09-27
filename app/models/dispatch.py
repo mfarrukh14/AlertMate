@@ -12,6 +12,7 @@ class ServiceType(str, Enum):
     MEDICAL = "medical"
     POLICE = "police"
     DISASTER = "disaster"
+    GENERAL = "general"
 
 
 class DispatchRequest(BaseModel):
@@ -74,20 +75,25 @@ class ChatRequest(BaseModel):
     lang: str = Field(default="en", min_length=2, max_length=5)
     lat: Optional[float] = None
     lon: Optional[float] = None
-    user_query: str = Field(..., min_length=3)
+    user_query: str = Field(..., min_length=1)
     timestamp: Optional[str] = None
 
     def to_dispatch_request(self) -> DispatchRequest:
         lat = self.lat if self.lat is not None else 0.0
         lon = self.lon if self.lon is not None else 0.0
         user_location = self.user_location or "unspecified"
+        query = self.user_query.strip()
+        if len(query) < 5:
+            repeated = (query + " ") * 3
+            query = repeated.strip()
+
         return DispatchRequest(
             userid=self.userid,
             user_location=user_location,
             lang=self.lang,
             lat=lat,
             lon=lon,
-            user_query=self.user_query,
+            user_query=query,
             timestamp=self.timestamp,
         )
 

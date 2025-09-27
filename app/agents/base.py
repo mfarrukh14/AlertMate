@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional
 
 from app.models.dispatch import DispatchRequest, FrontAgentOutput, ServiceAgentResponse, ServiceType
 
@@ -13,6 +13,7 @@ class AgentContext:
     request: DispatchRequest
     trace_id: str
     front_output: Optional[FrontAgentOutput] = None
+    history: Optional[List[dict]] = None
 
     def to_payload(self) -> Dict[str, Any]:
         payload: Dict[str, Any] = {
@@ -21,6 +22,8 @@ class AgentContext:
         }
         if self.front_output:
             payload["front_output"] = self.front_output.model_dump()
+        if self.history:
+            payload["history"] = self.history
         return payload
 
 

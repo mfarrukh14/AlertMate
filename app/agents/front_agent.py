@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import re
 from collections import Counter
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Optional, Tuple
 
 from pydantic import ValidationError
 
@@ -148,6 +148,22 @@ _PHRASE_PATTERNS: Tuple[Tuple[str, re.Pattern[str]], ...] = (
     ("flooded street", re.compile(r"flood(ed)? street")),
 )
 
+_GREETINGS = {
+    "hi",
+    "hello",
+    "hey",
+    "salam",
+    "salaam",
+    "salaam alaikum",
+    "salam alaikum",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "greetings",
+    "assalamualaikum",
+    "assalamu alaikum",
+}
+
 logger = logging.getLogger(__name__)
 
 
@@ -174,9 +190,55 @@ class FrontDispatcherAgent:
 
         return keywords[:8]
 
+    def _ensure_minimum_keywords(self, keywords: List[str], query: str) -> List[str]:
+        normalized = [kw.strip() for kw in keywords if kw and kw.strip()]
+
+        if len(normalized) >= 3:
+            return normalized[:8]
+
+        query_tokens = re.findall(r"[a-z0-9']+", query.lower())
+        for token in query_tokens:
+            if token in _STOPWORDS or len(token) <= 2:
+                continue
+            if token not in normalized:
+                normalized.append(token)
+            if len(normalized) >= 3:
+                break
+
+        fallback_pool = ["emergency", "assistance", "support", "help"]
+        for filler in fallback_pool:
+            if len(normalized) >= 3:
+                break
+            if filler not in normalized:
+                normalized.append(filler)
+
+        return normalized[:8]
+
+    def _should_route_to_general(self, query: str, keywords: Iterable[str]) -> bool:
+        normalized = query.strip().lower()
+        if not normalized:
+            return True
+
+        if normalized in _GREETINGS:
+            return True
+
+        tokens = [token for token in re.findall(r"[a-z0-9']+", normalized) if token not in _STOPWORDS]
+        if not tokens:
+            return True
+
+        # Detect emergency indicators to avoid misclassifying critical incidents.
+        emergency_tokens = set().union(*_SERVICE_KEYWORDS.values()) | _URGENCY_1_TOKENS | _URGENCY_2_TOKENS
+        if any(token in emergency_tokens for token in tokens):
+            return False
+
+        if len(tokens) <= 3:
+            return True
+
+        return False
+
     def classify_service(self, query: str, keywords: Iterable[str]) -> Tuple[ServiceType, str, bool, str]:
         query_lower = query.lower()
-        matched_scores = {service: 0 for service in ServiceType}
+        matched_scores = {service: 0 for service in (ServiceType.MEDICAL, ServiceType.POLICE, ServiceType.DISASTER)}
 
         for keyword in keywords:
             for service, service_words in _SERVICE_KEYWORDS.items():
@@ -232,20 +294,26 @@ class FrontDispatcherAgent:
 
         return 3, "Defaulted to informational urgency"
 
-    def run(self, request: DispatchRequest) -> FrontAgentOutput:
+    def run(self, request: DispatchRequest, history: Optional[List[dict]] = None) -> FrontAgentOutput:
         if llm_client.is_configured:
             try:
-                return self._run_with_llm(request)
+                return self._run_with_llm(request, history)
             except (LLMError, ValidationError, ValueError, KeyError) as exc:
                 logger.warning("Front agent LLM failed, falling back to heuristics: %s", exc)
-        return self._run_with_rules(request)
+        return self._run_with_rules(request, history)
 
-    def _run_with_llm(self, request: DispatchRequest) -> FrontAgentOutput:
+    def _run_with_llm(self, request: DispatchRequest, history: Optional[List[dict]]) -> FrontAgentOutput:
+        heuristic_keywords = self.extract_keywords(request.user_query)
+        if not heuristic_keywords:
+            heuristic_keywords = [request.user_query.lower()[:30]]
+
         payload = request.model_dump()
-        payload["historical_keywords"] = self.extract_keywords(request.user_query)
+        payload["historical_keywords"] = heuristic_keywords
         payload["service_keywords"] = {
             service.value: sorted(list(keywords)) for service, keywords in _SERVICE_KEYWORDS.items()
         }
+        if history:
+            payload["conversation_history"] = history
 
         system_prompt = (
             "You are the Front Dispatcher. Receive JSON with userid, user_location, lang, lat, lon, "
@@ -253,9 +321,9 @@ class FrontDispatcherAgent:
             "\nFollow the rules strictly:\n"
             "1) Extract 3-8 concise keywords or short phrases from user_query."
             "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety; 2 = serious but not immediately fatal; 3 = informational."
-            "\n3) Choose selected_service from ['medical','police','disaster'] using the heuristics provided."
+            "\n3) Choose selected_service from ['medical','police','disaster','general']. Use 'general' for greetings, wellness check-ins, or messages without actionable emergency clues."
             "\n4) Provide a short explanation that mentions both urgency and service reasons."
-            "\n5) If confidence in the service is low, set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
+            "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
             "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
             "follow_up_required (bool), follow_up_reason (string or null)."
             "\nOnly respond with JSON, no extra text."
@@ -273,15 +341,55 @@ class FrontDispatcherAgent:
             result["follow_up_reason"] = None
         if "selected_service" in result and isinstance(result["selected_service"], str):
             result["selected_service"] = result["selected_service"].lower().strip()
+            if result["selected_service"] not in {svc.value for svc in ServiceType}:
+                result["selected_service"] = ServiceType.GENERAL.value
+            if result["selected_service"] == ServiceType.GENERAL.value:
+                result["follow_up_required"] = True
+                if not result.get("follow_up_reason"):
+                    result["follow_up_reason"] = "Could you describe the emergency or how I can assist you today?"
         if "keywords" in result and isinstance(result["keywords"], list):
             result["keywords"] = [str(keyword).strip() for keyword in result["keywords"] if str(keyword).strip()]
 
+        heur_keywords = heuristic_keywords[:]
+        heur_keywords = self._ensure_minimum_keywords(heur_keywords, request.user_query)
+        route_general = self._should_route_to_general(request.user_query, heuristic_keywords)
+        result["keywords"] = self._ensure_minimum_keywords(result.get("keywords", []), request.user_query)
+
+        if route_general:
+            result["selected_service"] = ServiceType.GENERAL.value
+            result["follow_up_required"] = True
+            result["follow_up_reason"] = "Could you describe the emergency or how I can assist you today?"
+
+        heur_urgency, heur_reason = self.determine_urgency(request.user_query, heur_keywords)
+        if heur_urgency < result.get("urgency", 3):
+            result["urgency"] = heur_urgency
+            explain = result.get("explain") or ""
+            if heur_reason not in explain:
+                explain = f"{heur_reason}; {explain}".strip("; ")
+            result["explain"] = explain
+
         return FrontAgentOutput.model_validate(result)
 
-    def _run_with_rules(self, request: DispatchRequest) -> FrontAgentOutput:
-        keywords = self.extract_keywords(request.user_query)
-        if not keywords:
-            keywords = [request.user_query.lower()[:30]]
+    def _run_with_rules(self, request: DispatchRequest, _history: Optional[List[dict]] = None) -> FrontAgentOutput:
+        raw_keywords = self.extract_keywords(request.user_query)
+        if not raw_keywords:
+            raw_keywords = [request.user_query.lower()[:30]]
+
+        route_general = self._should_route_to_general(request.user_query, raw_keywords)
+        keywords = self._ensure_minimum_keywords(raw_keywords, request.user_query)
+
+        if route_general:
+            explain = "Identified a general greeting or low-information message; awaiting more details before routing."
+            follow_up = "Could you describe the emergency or how I can assist you today?"
+            general_keywords = keywords if keywords else ["greeting", "general", "follow_up_needed"]
+            return FrontAgentOutput(
+                keywords=general_keywords[:8],
+                urgency=3,
+                selected_service=ServiceType.GENERAL,
+                explain=explain,
+                follow_up_required=True,
+                follow_up_reason=follow_up,
+            )
 
         urgency, urgency_reason = self.determine_urgency(request.user_query, keywords)
         selected_service, service_reason, follow_up_required, follow_up_reason = self.classify_service(

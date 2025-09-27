@@ -94,3 +94,45 @@ async def test_validation_error() -> None:
         response = await client.post("/api/v1/dispatch", json=payload)
 
     assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_chat_ui_served() -> None:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.get("/")
+
+    assert response.status_code == 200
+    body = response.text
+    assert "AlertMate Ops Console" in body
+    assert "Send to AlertMate" in body
+
+
+@pytest.mark.asyncio
+async def test_chat_endpoint_handles_short_message() -> None:
+    payload = {"user_query": "hi"}
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post("/api/v1/chat", json=payload)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["service_agent_response"]["service"] == "general"
+    assert body["front_agent"]["follow_up_required"] is True
+    assert "describe" in body["reply"].lower()
+
+
+@pytest.mark.asyncio
+async def test_chat_endpoint_greeting() -> None:
+    payload = {"user_query": "hello"}
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post("/api/v1/chat", json=payload)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["service_agent_response"]["service"] == "general"
+    assert body["service_agent_response"]["follow_up_required"] is True
+    assert "hello" not in body["reply"].lower() or "assist" in body["reply"].lower()

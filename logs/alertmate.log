@@ -6,3 +6,126 @@
 2025-09-27 13:56:36,967 [WARNING] app.agents.police_agent :: Police agent LLM failed, using heuristics: Groq LLM request failed
 2025-09-27 13:56:36,967 [INFO] app.agents.router :: Service agent response
 2025-09-27 13:56:36,968 [INFO] alertmate.server :: Chat completed
+2025-09-27 16:16:40,108 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 16:16:40,220 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 16:16:40,749 [ERROR] app.utils.llm_client :: Groq LLM request failed: Completions.create() got an unexpected keyword argument 'max_completion_tokens'
+2025-09-27 16:16:40,749 [WARNING] app.agents.front_agent :: Front agent LLM failed, falling back to heuristics: Groq LLM request failed
+2025-09-27 16:16:40,749 [ERROR] alertmate.server :: Unhandled error during chat
+Traceback (most recent call last):
+  File "C:\Users\hp\Desktop\MyArchive\Code\AlertMate\server.py", line 122, in chat_endpoint
+    front_output, service_response = await asyncio.to_thread(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\asyncio\threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\Desktop\MyArchive\Code\AlertMate\app\agents\router.py", line 115, in process
+    result_state = self._graph.invoke({"request": request, "trace_id": trace_id})
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\site-packages\langgraph\pregel\__init__.py", line 1281, in invoke
+    for chunk in self.stream(
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\site-packages\langgraph\pregel\__init__.py", line 966, in stream
+    _panic_or_proceed(done, inflight, loop.step)
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\site-packages\langgraph\pregel\__init__.py", line 1367, in _panic_or_proceed
+    raise exc
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\site-packages\langgraph\pregel\executor.py", line 60, in done
+    task.result()
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\site-packages\langgraph\pregel\retry.py", line 25, in run_with_retry
+    task.proc.invoke(task.input, task.config)
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\site-packages\langchain_core\runnables\base.py", line 2873, in invoke
+    input = step.invoke(input, config, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\site-packages\langgraph\utils.py", line 102, in invoke
+    ret = context.run(self.func, input, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\Desktop\MyArchive\Code\AlertMate\app\agents\router.py", line 49, in run_front
+    front_output = self.front_agent.run(request)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\Desktop\MyArchive\Code\AlertMate\app\agents\front_agent.py", line 241, in run
+    return self._run_with_rules(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\Desktop\MyArchive\Code\AlertMate\app\agents\front_agent.py", line 294, in _run_with_rules
+    return FrontAgentOutput(
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\hp\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for FrontAgentOutput
+keywords
+  Value error, keywords must contain between 3 and 8 items [type=value_error, input_value=['hello'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.11/v/value_error
+2025-09-27 16:22:15,237 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 16:22:15,326 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 16:22:16,831 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:22:16,834 [WARNING] app.agents.front_agent :: Front agent LLM failed, falling back to heuristics: 1 validation error for FrontAgentOutput
+keywords
+  Value error, keywords must contain between 3 and 8 items [type=value_error, input_value=['hello'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.11/v/value_error
+2025-09-27 16:22:16,836 [INFO] app.agents.router :: Front agent output
+2025-09-27 16:22:17,320 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:22:17,320 [INFO] app.agents.router :: Service agent response
+2025-09-27 16:22:17,320 [INFO] alertmate.server :: Chat completed
+2025-09-27 16:34:31,333 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 16:34:31,398 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 16:34:32,858 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:34:32,858 [WARNING] app.agents.front_agent :: Front agent LLM failed, falling back to heuristics: 1 validation error for FrontAgentOutput
+keywords
+  Value error, keywords must contain between 3 and 8 items [type=value_error, input_value=['hi', 'greeting'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.11/v/value_error
+2025-09-27 16:34:32,858 [INFO] app.agents.router :: Front agent output
+2025-09-27 16:34:37,221 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:34:37,221 [INFO] app.agents.router :: Service agent response
+2025-09-27 16:35:19,615 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 16:35:19,665 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 16:35:52,448 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:35:52,448 [WARNING] app.agents.front_agent :: Front agent LLM failed, falling back to heuristics: 1 validation error for FrontAgentOutput
+keywords
+  Value error, keywords must contain between 3 and 8 items [type=value_error, input_value=['hi'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.11/v/value_error
+2025-09-27 16:35:52,448 [INFO] app.agents.router :: Front agent output
+2025-09-27 16:39:14,643 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 16:39:14,726 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 16:39:16,115 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:39:16,123 [INFO] app.agents.router :: Front agent output
+2025-09-27 16:39:16,169 [INFO] alertmate.server :: Chat completed
+2025-09-27 16:39:31,751 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 16:39:31,766 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 16:39:32,698 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:39:32,698 [INFO] app.agents.router :: Front agent output
+2025-09-27 16:39:32,708 [INFO] alertmate.server :: Chat completed
+2025-09-27 16:39:57,235 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 16:39:57,263 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 16:39:58,008 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:39:58,057 [INFO] app.agents.router :: Front agent output
+2025-09-27 16:39:58,066 [INFO] alertmate.server :: Chat completed
+2025-09-27 16:40:38,989 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 16:40:39,004 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 16:40:39,715 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:40:39,727 [INFO] app.agents.router :: Front agent output
+2025-09-27 16:40:40,218 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 16:40:40,218 [INFO] app.agents.router :: Service agent response
+2025-09-27 16:40:40,218 [INFO] alertmate.server :: Chat completed
+2025-09-27 17:27:02,270 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 17:27:02,400 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 17:27:03,693 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 17:27:03,693 [INFO] app.agents.router :: Front agent output
+2025-09-27 17:27:03,734 [INFO] app.agents.router :: Queued service task
+2025-09-27 17:27:03,742 [INFO] alertmate.server :: Chat completed
+2025-09-27 17:27:20,109 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 17:27:20,131 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 17:27:21,012 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 17:27:21,012 [INFO] app.agents.router :: Front agent output
+2025-09-27 17:27:21,556 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 17:27:21,571 [INFO] app.agents.router :: Service agent response
+2025-09-27 17:27:21,589 [INFO] app.agents.router :: Queued service task
+2025-09-27 17:27:21,604 [INFO] alertmate.server :: Chat completed

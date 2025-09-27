@@ -1,12 +1,14 @@
 # AlertMate Dispatch MVP
 
-Minimal FastAPI + LangGraph-inspired multi-agent router that triages emergency requests across medical, police, and disaster services.
+Minimal FastAPI + LangGraph multi-agent router that triages emergency requests across medical, police, and disaster services.
 
 ## Features
 
 - `/api/v1/dispatch` endpoint accepting location, language, and user query metadata.
 - Front dispatcher agent extracts keywords, sets urgency (1–3), and selects the appropriate downstream service.
+- LangGraph orchestrates the front and downstream service agents while sharing structured state between nodes.
 - Service agents (medical, police, disaster) choose subservices, trigger mocked actions, and ask targeted follow-up questions when needed.
+- Smart conversation guardrails detect casual greetings or low-information chat, keep the request with the front agent, and ask for more detail before paging any service.
 - Optional Groq LLM integration for nuanced routing with graceful fallback to deterministic heuristics.
 - Structured JSON responses containing front-agent reasoning, downstream action, `trace_id`, and follow-up prompts.
 - Rotating file + console logging pipeline for observability.
@@ -38,7 +40,17 @@ Without these variables the system falls back to heuristic routing logic.
 uvicorn server:app --reload --port 8000
 ```
 
-Once the server is running, visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) to see the landing page with quick links to documentation and sample payloads.
+Once the server is running, visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) to open the live chat console. Enter an emergency message, tweak optional metadata, and the page will display the conversational reply alongside the raw agent decisions.
+
+## Web console
+
+The in-browser console lets you:
+
+- Submit a natural-language emergency description and instantly relay it to `/api/v1/chat`.
+- Start with a simple greeting (“hello”)—the front agent will stay in conversation mode and ask clarifying questions until a real incident is described.
+- Inspect the front agent's classification, urgency score, and keywords.
+- Review the downstream service agent routing, actions, metadata, and trace ID.
+- Iterate quickly without needing external REST tools.
 
 ## Example dispatch request
 
@@ -60,8 +72,10 @@ Send free-form text to the chat interface, which internally reuses the dispatch 
 ```powershell
 curl -X POST http://127.0.0.1:8000/api/v1/chat ^
   -H "Content-Type: application/json" ^
-  -d '{"message": "There is smoke coming from the apartment next door"}'
+  -d '{"user_query": "There is smoke coming from the apartment next door"}'
 ```
+
+> Tip: while the UI is ideal for exploration, the API remains fully scriptable via `curl` or any HTTP client.
 
 The response includes a `reply` field along with the same structured agent data returned by `/api/v1/dispatch`.
 
