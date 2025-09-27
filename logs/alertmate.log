@@ -1,0 +1,8 @@
+2025-09-27 13:56:36,562 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 13:56:36,963 [ERROR] app.utils.llm_client :: Groq LLM request failed: Completions.create() got an unexpected keyword argument 'max_completion_tokens'
+2025-09-27 13:56:36,964 [WARNING] app.agents.front_agent :: Front agent LLM failed, falling back to heuristics: Groq LLM request failed
+2025-09-27 13:56:36,964 [INFO] app.agents.router :: Front agent output
+2025-09-27 13:56:36,965 [ERROR] app.utils.llm_client :: Groq LLM request failed: Completions.create() got an unexpected keyword argument 'max_completion_tokens'
+2025-09-27 13:56:36,967 [WARNING] app.agents.police_agent :: Police agent LLM failed, using heuristics: Groq LLM request failed
+2025-09-27 13:56:36,967 [INFO] app.agents.router :: Service agent response
+2025-09-27 13:56:36,968 [INFO] alertmate.server :: Chat completed
