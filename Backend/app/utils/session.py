@@ -31,8 +31,13 @@ def create_session_token(user_id: str, expires_at: datetime) -> str:
 
 def verify_session_token(token: str) -> Optional[Dict[str, Any]]:
     """Verify and decode a session token. Returns None if invalid/expired."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
+        logger.info(f"Verifying token: {token[:50]}...")
         payload_b64, signature = token.split('.', 1)
+        logger.info(f"Payload part: {payload_b64[:20]}..., Signature: {signature[:20]}...")
         
         # Verify signature
         expected_signature = hmac.new(
@@ -41,21 +46,32 @@ def verify_session_token(token: str) -> Optional[Dict[str, Any]]:
             hashlib.sha256
         ).hexdigest()
         
+        logger.info(f"Expected signature: {expected_signature[:20]}...")
+        logger.info(f"Provided signature: {signature[:20]}...")
+        
         if not hmac.compare_digest(signature, expected_signature):
+            logger.info("Signature verification failed")
             return None
             
         # Decode payload
         payload_json = bytes.fromhex(payload_b64).decode('utf-8')
         payload = json.loads(payload_json)
+        logger.info(f"Decoded payload: {payload}")
         
         # Check expiration
         expires_at = datetime.fromisoformat(payload['expires_at'])
-        if datetime.utcnow() > expires_at:
+        now = datetime.utcnow()
+        logger.info(f"Token expires at: {expires_at}, Current time: {now}")
+        
+        if now > expires_at:
+            logger.info("Token expired")
             return None
             
+        logger.info("Token verification successful")
         return payload
         
-    except (ValueError, KeyError, json.JSONDecodeError):
+    except (ValueError, KeyError, json.JSONDecodeError) as e:
+        logger.info(f"Token verification failed with error: {e}")
         return None
 
 

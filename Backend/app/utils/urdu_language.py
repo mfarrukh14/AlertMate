@@ -150,7 +150,7 @@ URDU_URGENCY_1 = {
 }
 
 URDU_URGENCY_2 = {
-    "فریکچر", "ٹوٹا ہوا", "شدید درد", "ڈکیتی", "حملہ", "خطرہ",
+    "فریکچر", "ٹوٹا ہوا", "ٹوٹ", "شدید درد", "ڈکیتی", "حملہ", "خطرہ",
     "سیلاب", "گر گیا", "زلزلہ", "پہاڑی تودہ"
 }
 
@@ -193,7 +193,10 @@ def detect_urdu_language(text: str) -> str:
     
     # Check for Roman Urdu patterns (common Roman Urdu words)
     # But exclude very common English words that might be in the mapping
-    common_english_words = {'help', 'need', 'please', 'yes', 'no', 'i', 'you', 'we', 'they', 'the', 'a', 'an', 'and', 'or', 'but'}
+    common_english_words = {
+        'help', 'need', 'please', 'yes', 'no', 'i', 'you', 'we', 'they', 'the', 'a', 'an', 'and', 'or', 'but',
+        'call', 'ambulance'  # Common English emergency terms
+    }
     roman_urdu_words = 0
     words = text.lower().split()
     
@@ -312,15 +315,17 @@ def get_urdu_urgency_level(text: str, language: str = None) -> Tuple[int, str]:
     # Check for medium urgency (level 2)
     urgency_2_indicators = []
     if language in ['urdu', 'mixed']:
+        # First check for exact matches
         for indicator in URDU_URGENCY_2:
             if indicator in text:
                 urgency_2_indicators.append(indicator)
         
-        # Also check for partial matches in Urdu keywords
-        for indicator in URDU_URGENCY_2:
-            for word in indicator.split():
-                if word in text and len(word) > 2:  # Avoid very short word matches
-                    urgency_2_indicators.append(word)
+        # If no exact matches, check for partial matches
+        if not urgency_2_indicators:
+            for indicator in URDU_URGENCY_2:
+                for word in indicator.split():
+                    if word in text and len(word) > 2:  # Avoid very short word matches
+                        urgency_2_indicators.append(word)
     
     if language in ['roman_urdu', 'mixed', 'english']:
         for indicator in ROMAN_URDU_URGENCY_2:

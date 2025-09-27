@@ -125,6 +125,16 @@ class TestUrduEmergencyFlows:
     @pytest.mark.asyncio
     async def test_urdu_medical_emergency(self):
         """Test medical emergency in Urdu."""
+        # First create a test user
+        user_payload = {
+            "user_id": "u_urdu_1",
+            "email": "urdu_test@example.com",
+            "password": "TestPassword123",
+            "name": "Urdu Test User",
+            "lat": 24.8607,
+            "lon": 67.0011
+        }
+        
         payload = {
             "userid": "u_urdu_1",
             "user_location": "کراچی",
@@ -136,6 +146,8 @@ class TestUrduEmergencyFlows:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+            # Create user first
+            await client.post("/api/v1/users", json=user_payload)
             response = await client.post("/api/v1/dispatch", json=payload)
 
         assert response.status_code == 200
@@ -147,6 +159,16 @@ class TestUrduEmergencyFlows:
     @pytest.mark.asyncio
     async def test_roman_urdu_police_emergency(self):
         """Test police emergency in Roman Urdu."""
+        # First create a test user
+        user_payload = {
+            "user_id": "u_roman_1",
+            "email": "roman_test@example.com",
+            "password": "TestPassword123",
+            "name": "Roman Test User",
+            "lat": 24.8607,
+            "lon": 67.0011
+        }
+        
         payload = {
             "userid": "u_roman_1",
             "user_location": "Lahore",
@@ -158,6 +180,8 @@ class TestUrduEmergencyFlows:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+            # Create user first
+            await client.post("/api/v1/users", json=user_payload)
             response = await client.post("/api/v1/dispatch", json=payload)
 
         assert response.status_code == 200
@@ -169,6 +193,16 @@ class TestUrduEmergencyFlows:
     @pytest.mark.asyncio
     async def test_urdu_greeting_routing(self):
         """Test that Urdu greetings route to general service."""
+        # First create a test user
+        user_payload = {
+            "user_id": "u_greeting_1",
+            "email": "greeting_test@example.com",
+            "password": "TestPassword123",
+            "name": "Greeting Test User",
+            "lat": 24.8607,
+            "lon": 67.0011
+        }
+        
         payload = {
             "userid": "u_greeting_1",
             "user_location": "Islamabad",
@@ -180,6 +214,8 @@ class TestUrduEmergencyFlows:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+            # Create user first
+            await client.post("/api/v1/users", json=user_payload)
             response = await client.post("/api/v1/dispatch", json=payload)
 
         assert response.status_code == 200
@@ -191,6 +227,16 @@ class TestUrduEmergencyFlows:
     @pytest.mark.asyncio
     async def test_mixed_language_emergency(self):
         """Test mixed language emergency."""
+        # First create a test user
+        user_payload = {
+            "user_id": "u_mixed_1",
+            "email": "mixed_test@example.com",
+            "password": "TestPassword123",
+            "name": "Mixed Test User",
+            "lat": 24.8607,
+            "lon": 67.0011
+        }
+        
         payload = {
             "userid": "u_mixed_1",
             "user_location": "Karachi",
@@ -202,6 +248,8 @@ class TestUrduEmergencyFlows:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+            # Create user first
+            await client.post("/api/v1/users", json=user_payload)
             response = await client.post("/api/v1/dispatch", json=payload)
 
         assert response.status_code == 200
