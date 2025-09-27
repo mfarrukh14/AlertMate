@@ -177,33 +177,28 @@ def get_dispatch_locations(session: Session, hours: int = 24) -> List[Dict[str, 
     # Join tasks with users to get location data
     dispatches = session.execute(
         select(AgentTask, User)
-        .join(User, AgentTask.payload["user_id"].astext == User.user_id)
+        .join(User, AgentTask.user_id == User.user_id)
         .where(and_(
             AgentTask.created_at >= since,
             User.lat.isnot(None),
             User.lon.isnot(None),
-            AgentTask.service != ServiceType.GENERAL
+            AgentTask.service_type != ServiceType.GENERAL
         ))
         .order_by(AgentTask.created_at.desc())
     ).all()
     
     locations = []
     for task, user in dispatches:
-        # Extract additional info from payload
-        user_location = "Unknown"
-        if task.payload and "user_location" in task.payload:
-            user_location = task.payload["user_location"]
-        
         locations.append({
             "id": task.id,
-            "lat": float(user.lat),
-            "lon": float(user.lon),
-            "service": task.service.value,
+            "latitude": float(user.lat),
+            "longitude": float(user.lon),
+            "service": task.service_type.value,
             "priority": task.priority,
             "status": task.status.value,
-            "timestamp": task.created_at.isoformat(),
+            "created_at": task.created_at.isoformat(),
             "user_name": user.name,
-            "user_location": user_location,
+            "city": user.city or "Unknown",
             "trace_id": task.trace_id,
             "is_active": task.status in [AgentTaskStatus.PENDING, AgentTaskStatus.IN_PROGRESS]
         })

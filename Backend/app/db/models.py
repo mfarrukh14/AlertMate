@@ -103,3 +103,19 @@ class ServiceEvent(Base):
 
     user: Mapped[User] = relationship(back_populates="events")
 
+
+class ServiceLocation(Base):
+    """Reference data for hospitals, police stations, disaster centers, etc."""
+    __tablename__ = "service_locations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(255), index=True)
+    service_type: Mapped[ServiceType] = mapped_column(Enum(ServiceType), index=True)
+    latitude: Mapped[float] = mapped_column(Float)
+    longitude: Mapped[float] = mapped_column(Float)
+    city: Mapped[str] = mapped_column(String(80), index=True)
+    address: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    phone: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Integer, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
