@@ -50,8 +50,20 @@ class BaseServiceAgent:
     ) -> ServiceAgentResponse:
         raise NotImplementedError
 
+    async def perform_subservice_async(
+        self, context: AgentContext, subservice: str, front_output: FrontAgentOutput
+    ) -> ServiceAgentResponse:
+        # Default implementation calls sync method
+        return self.perform_subservice(context, subservice, front_output)
+
     def run(self, context: AgentContext, front_output: FrontAgentOutput) -> ServiceAgentResponse:
         subservice = self.classify_subservice(context, front_output)
         if subservice not in self.subservices:
             raise AgentError(f"Unsupported subservice '{subservice}' for {self.service_type}")
         return self.perform_subservice(context, subservice, front_output)
+    
+    async def run_async(self, context: AgentContext, front_output: FrontAgentOutput) -> ServiceAgentResponse:
+        subservice = self.classify_subservice(context, front_output)
+        if subservice not in self.subservices:
+            raise AgentError(f"Unsupported subservice '{subservice}' for {self.service_type}")
+        return await self.perform_subservice_async(context, subservice, front_output)
