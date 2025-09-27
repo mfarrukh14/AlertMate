@@ -29,7 +29,13 @@ class DispatchRequest(BaseModel):
 
     @field_validator("lang")
     def normalize_lang(cls, value: str) -> str:
-        return value.lower()
+        normalized = value.lower()
+        # Map common Urdu language codes
+        if normalized in ["ur", "urd", "urdu"]:
+            return "ur"
+        elif normalized in ["ur-en", "roman-urdu", "roman_urdu"]:
+            return "ur-en"
+        return normalized
 
 
 class FrontAgentOutput(BaseModel):

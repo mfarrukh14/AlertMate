@@ -763,7 +763,7 @@ def get_chat_page() -> str:
                     <textarea 
                         class="emergency-input" 
                         id="emergency-input" 
-                        placeholder="Describe your emergency situation in detail. Include location details if different from your registered address..."
+                        placeholder="Describe your emergency situation in detail. Include location details if different from your registered address... (You can write in English, Urdu, or Roman Urdu)"
                         autofocus
                     ></textarea>
                 </div>
@@ -787,10 +787,10 @@ def get_chat_page() -> str:
             <div class="info-card">
                 <h3>⚡ Quick Actions</h3>
                 <div class="quick-actions">
-                    <button class="quick-btn" onclick="quickMessage('Medical emergency')">🏥 Medical</button>
-                    <button class="quick-btn" onclick="quickMessage('Police needed')">🚔 Police</button>
-                    <button class="quick-btn" onclick="quickMessage('Fire emergency')">🔥 Fire</button>
-                    <button class="quick-btn" onclick="quickMessage('Natural disaster')">🌪️ Disaster</button>
+                    <button class="quick-btn" onclick="quickMessage('Medical emergency / ایمرجنسی')">🏥 Medical</button>
+                    <button class="quick-btn" onclick="quickMessage('Police needed / پولیس چاہیے')">🚔 Police</button>
+                    <button class="quick-btn" onclick="quickMessage('Fire emergency / آگ لگ گئی')">🔥 Fire</button>
+                    <button class="quick-btn" onclick="quickMessage('Natural disaster / قدرتی آفت')">🌪️ Disaster</button>
                 </div>
             </div>
             
