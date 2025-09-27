@@ -9,7 +9,8 @@ import uuid
 from typing import Any, Dict, Optional, List
 
 from fastapi import Depends, FastAPI, HTTPException, status, Request, Response, Cookie
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 import uvicorn
 from sqlalchemy.orm import Session
@@ -41,7 +42,6 @@ from app.services.user_service import (
 from app.services.auth import verify_password
 from app.config import SESSION_SECRET_KEY, SESSION_COOKIE_NAME, SESSION_MAX_AGE
 from app.utils.session import create_session_token, verify_session_token, get_session_expiry
-from app.templates import get_login_signup_page, get_chat_page, get_admin_dashboard
 
 configure_logging()
 logger = logging.getLogger("alertmate.server")
@@ -50,6 +50,16 @@ app = FastAPI(
     title="AlertMate Dispatch Service",
     version="0.1.0",
     description="MVP FastAPI + LangGraph multi-agent router",
+)
+
+# Add CORS middleware to allow frontend communication
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000"],  # React dev servers
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 dispatch_router = DispatchRouter()
@@ -278,9 +288,9 @@ def signup_endpoint(
             key=SESSION_COOKIE_NAME,
             value=session_token,
             max_age=SESSION_MAX_AGE,
-            httponly=True,
+            httponly=False,  # Allow JS access for debugging
             secure=False,  # Set to True in production with HTTPS
-            samesite="lax"
+            samesite=None  # Allow cross-origin for development
         )
         return json_response
     return user_response
@@ -311,9 +321,9 @@ def login_endpoint(
             key=SESSION_COOKIE_NAME,
             value=session_token,
             max_age=SESSION_MAX_AGE,
-            httponly=True,
+            httponly=False,  # Allow JS access for debugging
             secure=False,  # Set to True in production with HTTPS
-            samesite="lax"
+            samesite=None  # Allow cross-origin for development
         )
         
         return {
@@ -380,28 +390,6 @@ def get_user_endpoint(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
     return UserResponse.model_validate(user)
-
-
-# Frontend Routes
-@app.get("/", response_class=HTMLResponse)
-async def root_redirect(current_user: Optional[UserResponse] = Depends(get_current_user)) -> str:
-    """Root route - redirect based on auth status."""
-    if current_user:
-        return RedirectResponse(url="/chat", status_code=302)
-    return get_login_signup_page()
-
-
-@app.get("/chat", response_class=HTMLResponse)
-async def chat_page(current_user: UserResponse = Depends(require_auth)) -> str:
-    """Authenticated chat interface."""
-    return get_chat_page()
-
-
-@app.get("/admin", response_class=HTMLResponse)
-async def admin_dashboard(current_user: UserResponse = Depends(require_auth)) -> str:
-    """Admin dashboard - requires authentication."""
-    # TODO: Add proper admin role checking
-    return get_admin_dashboard()
 
 
 # Admin API endpoints

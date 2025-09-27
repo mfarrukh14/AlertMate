@@ -222,6 +222,48 @@ class DispatchRouter:
 
     @staticmethod
     def _format_service_message(service_response: ServiceAgentResponse) -> str:
+        def convert_for_json(obj):
+            """Deep-convert arbitrary objects into JSON-serializable structures.
+
+            Handles:
+              - set/tuple -> list
+              - Enum -> value
+              - datetime -> ISO string
+              - pydantic models (model_dump)
+              - objects with __dict__ (shallow) as last resort
+              - Any remaining unsupported object -> str(obj)
+            """
+            from enum import Enum
+            from datetime import datetime as _dt
+
+            # Fast path for primitives
+            if obj is None or isinstance(obj, (str, int, float, bool)):
+                return obj
+            if isinstance(obj, (set, tuple)):
+                return [convert_for_json(o) for o in obj]
+            if isinstance(obj, list):
+                return [convert_for_json(o) for o in obj]
+            if isinstance(obj, dict):
+                return {convert_for_json(k): convert_for_json(v) for k, v in obj.items()}
+            if isinstance(obj, Enum):
+                return obj.value
+            if isinstance(obj, _dt):
+                return obj.isoformat()
+            # Pydantic v2 models
+            if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+                try:
+                    return convert_for_json(obj.model_dump())
+                except Exception:  # pragma: no cover - defensive
+                    return str(obj)
+            # Generic dataclass-like / object with __dict__
+            if hasattr(obj, "__dict__"):
+                try:
+                    return {k: convert_for_json(v) for k, v in vars(obj).items() if not k.startswith("_")}
+                except Exception:  # pragma: no cover
+                    return str(obj)
+            # Fallback string representation
+            return str(obj)
+        
         parts: List[str] = [
             f"Service: {service_response.service.value} ({service_response.subservice})"
         ]
@@ -230,5 +272,17 @@ class DispatchRouter:
         if service_response.follow_up_required and service_response.follow_up_question:
             parts.append(f"Follow-up: {service_response.follow_up_question}")
         if service_response.metadata:
-            parts.append(f"Metadata: {json.dumps(service_response.metadata, ensure_ascii=False)}")
+            try:
+                serializable_metadata = convert_for_json(service_response.metadata)
+                parts.append(f"Metadata: {json.dumps(serializable_metadata, ensure_ascii=False)}")
+            except Exception as exc:  # pragma: no cover - resilience
+                logger.warning(
+                    "Failed to serialize service metadata; sending fallback string",
+                    extra={
+                        "error": str(exc),
+                        "service": service_response.service.value,
+                        "subservice": service_response.subservice,
+                    },
+                )
+                parts.append(f"Metadata: {str(service_response.metadata)}")
         return "\n".join(part for part in parts if part).strip()
