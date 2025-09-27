@@ -31,6 +31,7 @@ from app.models.dispatch import (
 )
 from app.db import get_session, init_db
 from app.utils.logging_utils import configure_logging
+from app.utils.network_utils import detect_network_quality, should_use_minimal_response, build_minimal_response, build_standard_response
 from app.models.user import UserRegistrationRequest, UserResponse, LoginRequest, AuthenticatedUser
 from app.services.user_service import (
     UserConflictError,
@@ -157,41 +158,31 @@ async def dispatch_endpoint(request: DispatchRequest) -> DispatchResponse:
     return response
 
 
-def _build_chat_reply(front: FrontAgentOutput, service: ServiceAgentResponse) -> str:
-    sections: list[str] = []
-
-    sections.append(front.explain)
-    sections.append(
-        " "
-        f"Priority level: {front.urgency} (1=low, 3=high). Keywords noted: {', '.join(front.keywords)}."
-    )
-
-    if service.service == ServiceType.GENERAL:
-        sections.append(
-            "I'll stay on the line until I know more. "
-            "No emergency service has been engaged yet."
+def _build_chat_reply(front: FrontAgentOutput, service: ServiceAgentResponse, request: Optional[DispatchRequest] = None) -> str:
+    """Build chat reply with network-aware optimization."""
+    
+    # Detect network quality and determine response mode
+    if request:
+        network_quality = detect_network_quality(request.network_quality, request.connection_type)
+        use_minimal = should_use_minimal_response(network_quality, front.urgency)
+        language = request.lang
+        
+        logger.info(
+            "Building response",
+            extra={
+                "network_quality": network_quality.value,
+                "connection_type": request.connection_type,
+                "urgency": front.urgency,
+                "use_minimal": use_minimal,
+                "language": language
+            }
         )
-    else:
-        service_intro = (
-            f"I've routed this to the {service.service.value.upper()} team"
-            f" (subservice: {service.subservice})."
-        )
-        if service.action_taken:
-            service_intro += f" Action taken: {service.action_taken}."
-        sections.append(service_intro)
-
-    if front.follow_up_required and front.follow_up_reason:
-        sections.append(f"Heads-up: {front.follow_up_reason}")
-
-    if service.follow_up_required:
-        follow_up_text = service.follow_up_question or "They'll need more details shortly."
-        sections.append(f"Next step: {follow_up_text}")
-
-    if service.metadata:
-        metadata_bits = ", ".join(f"{k}: {v}" for k, v in service.metadata.items())
-        sections.append(f"Additional info: {metadata_bits}")
-
-    return "\n\n".join(section.strip() for section in sections if section)
+        
+        if use_minimal:
+            return build_minimal_response(front, service, language)
+    
+    # Default to standard response
+    return build_standard_response(front, service)
 
 
 @app.post("/api/v1/chat", response_model=ChatResponse)
@@ -228,7 +219,7 @@ async def chat_endpoint(
         },
     )
 
-    reply = _build_chat_reply(front_output, service_response)
+    reply = _build_chat_reply(front_output, service_response, dispatch_request)
 
     return ChatResponse(
         status="ok",
