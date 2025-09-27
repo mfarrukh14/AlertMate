@@ -156,7 +156,10 @@ class DispatchRouter:
     def process(self, request: DispatchRequest, trace_id: str) -> tuple[FrontAgentOutput, ServiceAgentResponse]:
         logger.info("Processing dispatch request", extra={"trace_id": trace_id, "userid": request.userid})
         with session_scope() as session:
-            ensure_user(session, request.userid)
+            try:
+                ensure_user(session, request.userid)
+            except ValueError as exc:
+                raise AgentError(str(exc)) from exc
             history = get_recent_messages(session, request.userid, limit=12)
             result_state = self._graph.invoke({
                 "request": request,

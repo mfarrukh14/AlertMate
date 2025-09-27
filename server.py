@@ -6,12 +6,15 @@ import asyncio
 import logging
 import time
 import uuid
-from typing import Any, Dict
+from typing import Any, Dict, Optional, List
 
-from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import Depends, FastAPI, HTTPException, status, Request, Response, Cookie
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.exceptions import RequestValidationError
 import uvicorn
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
+from pydantic import ValidationError
 
 from app.agents.base import AgentError
 from app.agents.router import DispatchRouter
@@ -27,13 +30,18 @@ from app.models.dispatch import (
 )
 from app.db import get_session, init_db
 from app.utils.logging_utils import configure_logging
-from app.models.user import UserRegistrationRequest, UserResponse
+from app.models.user import UserRegistrationRequest, UserResponse, LoginRequest, AuthenticatedUser
 from app.services.user_service import (
     UserConflictError,
     UserNotFoundError,
     get_user_by_user_id,
     register_user,
+    authenticate_user,
 )
+from app.services.auth import verify_password
+from app.config import SESSION_SECRET_KEY, SESSION_COOKIE_NAME, SESSION_MAX_AGE
+from app.utils.session import create_session_token, verify_session_token, get_session_expiry
+from app.templates import get_login_signup_page, get_chat_page, get_admin_dashboard
 
 configure_logging()
 logger = logging.getLogger("alertmate.server")
@@ -48,12 +56,59 @@ dispatch_router = DispatchRouter()
 init_db()
 
 
+def get_current_user(
+    request: Request,
+    session: Session = Depends(get_session)
+) -> Optional[UserResponse]:
+    """Get the current authenticated user from session cookie."""
+    session_token = request.cookies.get(SESSION_COOKIE_NAME)
+    logger.debug(f"Session token from cookie: {session_token is not None}")
+    
+    if not session_token:
+        logger.debug("No session token found")
+        return None
+        
+    payload = verify_session_token(session_token)
+    logger.debug(f"Token verification result: {payload is not None}")
+    
+    if not payload:
+        logger.debug("Token verification failed")
+        return None
+        
+    try:
+        user = get_user_by_user_id(session, payload["user_id"])
+        logger.debug(f"User found: {user.user_id}")
+        return UserResponse.model_validate(user)
+    except UserNotFoundError:
+        logger.debug("User not found in database")
+        return None
+
+
+def require_auth(current_user: Optional[UserResponse] = Depends(get_current_user)) -> UserResponse:
+    """Require authentication, raise HTTP 401 if not authenticated."""
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required"
+        )
+    return current_user
+
+
 @app.exception_handler(AgentError)
 async def agent_error_handler(_, exc: AgentError):
     logger.exception("AgentError: %s", exc)
     return JSONResponse(
         status_code=500,
         content=ErrorResponse(detail=str(exc)).model_dump(),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(_, exc: RequestValidationError):
+    logger.error("Validation error: %s", exc.errors())
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()},
     )
 
 
@@ -130,8 +185,14 @@ def _build_chat_reply(front: FrontAgentOutput, service: ServiceAgentResponse) ->
 
 
 @app.post("/api/v1/chat", response_model=ChatResponse)
-async def chat_endpoint(request: ChatRequest) -> ChatResponse:
+async def chat_endpoint(
+    request: ChatRequest,
+    current_user: UserResponse = Depends(require_auth)
+) -> ChatResponse:
+    # Override userid from auth context
     dispatch_request = request.to_dispatch_request()
+    dispatch_request.userid = current_user.user_id
+    
     trace_id = str(uuid.uuid4())
     start_time = time.perf_counter()
 
@@ -166,6 +227,118 @@ async def chat_endpoint(request: ChatRequest) -> ChatResponse:
         front_agent=front_output,
         service_agent_response=service_response,
     )
+
+
+# Authentication endpoints
+@app.post("/api/v1/auth/signup", response_model=UserResponse)
+def signup_endpoint(
+    payload: UserRegistrationRequest,
+    response: Response,
+    session: Session = Depends(get_session),
+) -> UserResponse:
+    """Register a new user and create a session."""
+    try:
+        logger.info("Signup attempt", extra={"payload_data": payload.model_dump(exclude={"password"})})
+        user, created = register_user(session, payload)
+        session.commit()
+        
+        # Create session
+        expires_at = get_session_expiry()
+        session_token = create_session_token(user.user_id, expires_at)
+        
+        response.set_cookie(
+            key=SESSION_COOKIE_NAME,
+            value=session_token,
+            max_age=SESSION_MAX_AGE,
+            httponly=True,
+            secure=False,  # Set to True in production with HTTPS
+            samesite="lax"
+        )
+        
+    except UserConflictError as exc:
+        session.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except ValidationError as exc:
+        session.rollback()
+        logger.error("Validation error during signup", extra={"errors": exc.errors()})
+        raise HTTPException(status_code=422, detail=f"Validation error: {exc.errors()}") from exc
+    except Exception as exc:  # pragma: no cover - defensive
+        session.rollback()
+        logger.exception("Failed to register user", extra={"error": str(exc)})
+        raise HTTPException(status_code=500, detail="internal server error") from exc
+
+    user_response = UserResponse.model_validate(user)
+    if created:
+        json_response = JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content=user_response.model_dump(mode="json"),
+        )
+        # Copy the session cookie to the JSONResponse
+        json_response.set_cookie(
+            key=SESSION_COOKIE_NAME,
+            value=session_token,
+            max_age=SESSION_MAX_AGE,
+            httponly=True,
+            secure=False,  # Set to True in production with HTTPS
+            samesite="lax"
+        )
+        return json_response
+    return user_response
+
+
+@app.post("/api/v1/auth/login")
+def login_endpoint(
+    payload: LoginRequest,
+    response: Response,
+    session: Session = Depends(get_session),
+) -> Dict[str, Any]:
+    """Authenticate user and create session."""
+    try:
+        user = authenticate_user(session, payload.email, payload.password)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+            
+        session.commit()
+        
+        # Create session
+        expires_at = get_session_expiry()
+        session_token = create_session_token(user.user_id, expires_at)
+        
+        response.set_cookie(
+            key=SESSION_COOKIE_NAME,
+            value=session_token,
+            max_age=SESSION_MAX_AGE,
+            httponly=True,
+            secure=False,  # Set to True in production with HTTPS
+            samesite="lax"
+        )
+        
+        return {
+            "status": "success",
+            "message": "Login successful",
+            "user": UserResponse.model_validate(user).model_dump(mode="json")
+        }
+        
+    except Exception as exc:  # pragma: no cover - defensive
+        session.rollback()
+        logger.exception("Login failed", extra={"email": payload.email, "error": str(exc)})
+        raise HTTPException(status_code=500, detail="internal server error") from exc
+
+
+@app.post("/api/v1/auth/logout")
+def logout_endpoint(response: Response) -> Dict[str, str]:
+    """Clear the user session."""
+    response.delete_cookie(key=SESSION_COOKIE_NAME)
+    return {"status": "success", "message": "Logout successful"}
+
+
+@app.get("/api/v1/auth/me", response_model=UserResponse)
+def get_current_user_endpoint(current_user: UserResponse = Depends(require_auth)) -> UserResponse:
+    """Get the current authenticated user."""
+    return current_user
 
 
 @app.post("/api/v1/users", response_model=UserResponse)
@@ -209,338 +382,67 @@ def get_user_endpoint(
     return UserResponse.model_validate(user)
 
 
+# Frontend Routes
 @app.get("/", response_class=HTMLResponse)
-async def chat_ui() -> str:
-    return """
-<!DOCTYPE html>
-<html lang=\"en\">
-<head>
-    <meta charset=\"utf-8\" />
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-    <title>AlertMate Chat Console</title>
-    <style>
-        :root {
-            color-scheme: light dark;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
-        }
-        body {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        header {
-            padding: 1.5rem 2rem;
-            background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
-            color: #f8fafc;
-            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.35);
-        }
-        main {
-            flex: 1;
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: 3fr 2fr;
-            gap: 1.5rem;
-        }
-        @media (max-width: 960px) {
-            main {
-                grid-template-columns: 1fr;
-            }
-        }
-        section {
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            border-radius: 16px;
-            padding: 1.5rem;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.45);
-        }
-        h1 {
-            margin: 0 0 0.25rem 0;
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            letter-spacing: -0.03em;
-        }
-        p.subtitle {
-            margin: 0;
-            opacity: 0.9;
-            max-width: 48rem;
-        }
-        label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            display: block;
-            margin-bottom: 0.35rem;
-        }
-        input, textarea, select, button {
-            width: 100%;
-            border-radius: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            background: rgba(15, 23, 42, 0.6);
-            color: inherit;
-            padding: 0.75rem 1rem;
-            transition: border-color 0.2s ease, transform 0.15s ease;
-        }
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #38bdf8;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
-        }
-        textarea {
-            min-height: 140px;
-            resize: vertical;
-        }
-        button {
-            font-weight: 600;
-            cursor: pointer;
-            background: linear-gradient(135deg, #2563eb, #38bdf8);
-            border: none;
-            margin-top: 0.75rem;
-        }
-        button:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.35);
-        }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .chat-log {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-        .bubble {
-            padding: 1rem;
-            border-radius: 14px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-            border: 1px solid rgba(148, 163, 184, 0.2);
-        }
-        .bubble.user {
-            align-self: flex-end;
-            background: rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.35);
-        }
-        .bubble.agent {
-            background: rgba(30, 41, 59, 0.8);
-        }
-        .response-meta {
-            display: grid;
-            gap: 0.75rem;
-            font-size: 0.85rem;
-            margin-top: 1rem;
-        }
-        .meta-card {
-            background: rgba(15, 23, 42, 0.55);
-            border-radius: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            padding: 0.75rem;
-        }
-        code, pre {
-            font-family: "JetBrains Mono", "Fira Code", monospace;
-        }
-        footer {
-            padding: 1rem 2rem;
-            font-size: 0.85rem;
-            opacity: 0.75;
-            text-align: center;
-        }
-        .error {
-            color: #f87171;
-            margin-top: 0.5rem;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>AlertMate Ops Console</h1>
-        <p class=\"subtitle\">Simulate incoming emergency messages and inspect how the LangGraph-powered agents route the request.</p>
-    </header>
-    <main>
-        <section>
-            <form id=\"chat-form\">
-                <label for=\"user-query\">Emergency message</label>
-                <textarea id=\"user-query\" name=\"user_query\" placeholder=\"Describe the situation...\" required></textarea>
+async def root_redirect(current_user: Optional[UserResponse] = Depends(get_current_user)) -> str:
+    """Root route - redirect based on auth status."""
+    if current_user:
+        return RedirectResponse(url="/chat", status_code=302)
+    return get_login_signup_page()
 
-                <label for=\"userid\">User ID (optional)</label>
-                <input id=\"userid\" name=\"userid\" placeholder=\"guest\" />
 
-                <label for=\"user-location\">Location (optional)</label>
-                <input id=\"user-location\" name=\"user_location\" placeholder=\"Karachi, PK\" />
+@app.get("/chat", response_class=HTMLResponse)
+async def chat_page(current_user: UserResponse = Depends(require_auth)) -> str:
+    """Authenticated chat interface."""
+    return get_chat_page()
 
-                <label for=\"language\">Language</label>
-                <select id=\"language\" name=\"lang\">
-                    <option value=\"en\" selected>English (en)</option>
-                    <option value=\"ur\">Urdu (ur)</option>
-                    <option value=\"ar\">Arabic (ar)</option>
-                </select>
 
-                <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin-top: 0.75rem;\">
-                    <div>
-                        <label for=\"lat\">Latitude</label>
-                        <input id=\"lat\" name=\"lat\" type=\"number\" step=\"any\" placeholder=\"24.86\" />
-                    </div>
-                    <div>
-                        <label for=\"lon\">Longitude</label>
-                        <input id=\"lon\" name=\"lon\" type=\"number\" step=\"any\" placeholder=\"67.01\" />
-                    </div>
-                </div>
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_dashboard(current_user: UserResponse = Depends(require_auth)) -> str:
+    """Admin dashboard - requires authentication."""
+    # TODO: Add proper admin role checking
+    return get_admin_dashboard()
 
-                <button id=\"submit-btn\" type=\"submit\">Send to AlertMate</button>
-                <p id=\"error\" class=\"error\" hidden></p>
-            </form>
-        </section>
-        <section>
-            <h2 style=\"margin-top:0;\">Conversation</h2>
-            <div id=\"chat-log\" class=\"chat-log\"></div>
-            <div id=\"metadata\" class=\"response-meta\"></div>
-        </section>
-    </main>
-    <footer>
-        Powered by Groq + LangGraph · Inspect responses via /docs for full API schema.
-    </footer>
-    <script>
-        const form = document.getElementById('chat-form');
-        const chatLog = document.getElementById('chat-log');
-        const metadata = document.getElementById('metadata');
-        const submitBtn = document.getElementById('submit-btn');
-        const errorBox = document.getElementById('error');
 
-        function appendBubble(text, role) {
-            const bubble = document.createElement('div');
-            bubble.className = `bubble ${role}`;
-            bubble.textContent = text.trim();
-            chatLog.appendChild(bubble);
-            chatLog.scrollTop = chatLog.scrollHeight;
+# Admin API endpoints
+@app.get("/api/v1/admin/stats")
+async def get_admin_stats(current_user: UserResponse = Depends(require_auth)) -> Dict[str, Any]:
+    """Get admin dashboard statistics."""
+    # TODO: Implement real stats from database
+    return {
+        "active_emergencies": 12,
+        "total_users": 834,
+        "tasks_completed": 276,
+        "average_response_time": 23.5
+    }
+
+
+@app.get("/api/v1/admin/queue")
+async def get_admin_queue(current_user: UserResponse = Depends(require_auth)) -> List[Dict[str, Any]]:
+    """Get active task queue for admin dashboard."""
+    # TODO: Implement real queue data from database
+    return [
+        {
+            "id": 1,
+            "service": "medical",
+            "priority": 3,
+            "created_at": datetime.now().isoformat(),
+            "user_location": "Karachi, PK"
         }
+    ]
 
-        function renderMetadata(data) {
-            metadata.innerHTML = '';
 
-            const frontCard = document.createElement('div');
-            frontCard.className = 'meta-card';
-            frontCard.innerHTML = `
-                <strong>Front Agent</strong><br/>
-                Service: <code>${data.front_agent.selected_service}</code><br/>
-                Urgency: <code>${data.front_agent.urgency}</code><br/>
-                Keywords: ${data.front_agent.keywords.join(', ')}<br/>
-                Follow-up: ${data.front_agent.follow_up_required ? 'Required' : 'Not required'}
-                ${data.front_agent.follow_up_reason ? `<br/>Reason: ${data.front_agent.follow_up_reason}` : ''}
-            `;
-
-            const serviceCard = document.createElement('div');
-            serviceCard.className = 'meta-card';
-            serviceCard.innerHTML = `
-                <strong>${data.service_agent_response.service.toUpperCase()} Service</strong><br/>
-                Subservice: <code>${data.service_agent_response.subservice}</code><br/>
-                Action: ${data.service_agent_response.action_taken || 'N/A'}<br/>
-                Metadata: <pre>${JSON.stringify(data.service_agent_response.metadata, null, 2)}</pre>
-            `;
-
-            const traceCard = document.createElement('div');
-            traceCard.className = 'meta-card';
-            traceCard.innerHTML = `Trace ID: <code>${data.trace_id}</code>`;
-
-            metadata.appendChild(frontCard);
-            metadata.appendChild(serviceCard);
-            metadata.appendChild(traceCard);
+@app.get("/api/v1/admin/activity")
+async def get_admin_activity(current_user: UserResponse = Depends(require_auth)) -> List[Dict[str, Any]]:
+    """Get recent activity for admin dashboard."""
+    # TODO: Implement real activity data from database
+    return [
+        {
+            "type": "medical",
+            "message": "Medical emergency resolved in Karachi",
+            "timestamp": datetime.now().isoformat()
         }
-
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            errorBox.hidden = true;
-            const formData = new FormData(form);
-            const userQuery = formData.get('user_query').trim();
-
-            if (!userQuery) {
-                errorBox.textContent = 'Please describe the emergency.';
-                errorBox.hidden = false;
-                return;
-            }
-
-            const payload = {
-                user_query: userQuery,
-                userid: formData.get('userid')?.trim() || 'guest',
-                user_location: formData.get('user_location')?.trim() || undefined,
-                lang: formData.get('lang') || 'en',
-                lat: formData.get('lat') ? Number(formData.get('lat')) : undefined,
-                lon: formData.get('lon') ? Number(formData.get('lon')) : undefined
-            };
-
-            appendBubble(userQuery, 'user');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Routing...';
-
-            try {
-                const response = await fetch('/api/v1/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const detail = await response.json().catch(() => ({}));
-                    throw new Error(detail.detail || 'Request failed');
-                }
-
-                const data = await response.json();
-                appendBubble(data.reply, 'agent');
-                renderMetadata(data);
-            } catch (err) {
-                errorBox.textContent = err.message || 'Something went wrong.';
-                errorBox.hidden = false;
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Send to AlertMate';
-                form.user_query.value = '';
-                form.user_query.focus();
-            }
-        });
-    </script>
-</body>
-</html>
-"""
-
-@app.get("/", response_class=HTMLResponse)
-async def landing_page() -> str:
-        return """
-        <html>
-            <head>
-                <title>AlertMate Dispatch Service</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 2rem auto; max-width: 720px; line-height: 1.6; color: #1f2933; }
-                    h1 { color: #1f2933; }
-                    a { color: #2563eb; text-decoration: none; }
-                    a:hover { text-decoration: underline; }
-                    code { background-color: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px; }
-                    .panel { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; }
-                    ul { padding-left: 1.5rem; }
-                </style>
-            </head>
-            <body>
-                <h1>👋 Welcome to AlertMate</h1>
-                <p>
-                    Your multi-agent dispatch service is up and running. Use the interactive docs or the chat endpoint below to test routing
-                    decisions without leaving your browser.
-                </p>
-                <div class="panel">
-                    <h2>Try it out</h2>
-                    <ul>
-                        <li>Interactive API docs: <a href="/docs">Swagger UI</a></li>
-                        <li>Minimal JSON: <a href="/openapi.json">OpenAPI schema</a></li>
-                        <li>Chat endpoint: send a <code>POST</code> to <code>/api/v1/chat</code> with a JSON body like <code>{"message": "There's a fire at the library"}</code>.</li>
-                    </ul>
-                </div>
-                <p>Need help? Check the README for full setup and troubleshooting tips.</p>
-            </body>
-        </html>
-        """
+    ]
 
 
 @app.get("/health")

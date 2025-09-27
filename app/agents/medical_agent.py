@@ -18,8 +18,8 @@ class MedicalServiceAgent(BaseServiceAgent):
 
     def register_subservices(self) -> Mapping[str, Any]:
         return {
-            "ambulance_dispatch": medical.ambulance_dispatch_packet,
-            "nearest_hospital_lookup": medical.nearest_hospitals,
+            "ambulance_dispatch": "ambulance_dispatch",
+            "nearest_hospital_lookup": "nearest_hospital_lookup",
             "appointment_booking": lambda *args, **kwargs: {
                 "status": "appointment_requested",
                 "department": "orthopedics",
@@ -116,12 +116,21 @@ class MedicalServiceAgent(BaseServiceAgent):
     ) -> ServiceAgentResponse:
         handler = self.subservices[subservice]
         if subservice == "ambulance_dispatch":
-            metadata = handler(context.request.userid, context.request.user_location)
+            metadata = medical.ambulance_dispatch_packet(
+                context.request.userid,
+                context.request.lat,
+                context.request.lon,
+            )
             follow_up_required = True
             follow_up_question = "Is the patient conscious and breathing? Any heavy bleeding?"
             action = "dispatched_request_to_ambulance_provider"
         elif subservice == "nearest_hospital_lookup":
-            metadata = {"hospitals": handler()}
+            metadata = {
+                "hospitals": medical.nearest_hospitals(
+                    context.request.lat,
+                    context.request.lon,
+                )
+            }
             follow_up_required = False
             follow_up_question = None
             action = "returned_nearest_hospitals"

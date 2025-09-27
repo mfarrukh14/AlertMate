@@ -7,7 +7,7 @@ from datetime import date, datetime
 from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import Date, DateTime, Enum, ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import Date, DateTime, Enum, Float, ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -39,11 +39,20 @@ class User(Base):
     emergency_contact_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     emergency_contact_phone: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
     date_of_birth: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
-    email: Mapped[Optional[str]] = mapped_column(String(120), unique=True, nullable=True)
+    email: Mapped[str] = mapped_column(String(120), unique=True)
+    password_salt: Mapped[str] = mapped_column(String(64))
+    password_hash: Mapped[str] = mapped_column(String(256))
+    lat: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    lon: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     city: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     messages: Mapped[list["ConversationMessage"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    events: Mapped[list["ServiceEvent"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -72,4 +81,25 @@ class AgentTask(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     payload: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+
+
+class ServiceEventType(str, enum.Enum):
+    APPOINTMENT = "appointment"
+    AMBULANCE = "ambulance"
+    GENERAL = "general"
+
+
+class ServiceEvent(Base):
+    __tablename__ = "service_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.user_id", ondelete="CASCADE"), index=True)
+    trace_id: Mapped[str] = mapped_column(String(64), index=True)
+    service: Mapped[ServiceType] = mapped_column(Enum(ServiceType))
+    event_type: Mapped[ServiceEventType] = mapped_column(Enum(ServiceEventType))
+    title: Mapped[str] = mapped_column(String(160))
+    details: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+
+    user: Mapped[User] = relationship(back_populates="events")
 

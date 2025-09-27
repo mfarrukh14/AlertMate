@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import select
@@ -9,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import User
 from app.models.user import UserRegistrationRequest
+from app.services.auth import hash_password, verify_password
 
 
 class UserConflictError(Exception):
@@ -59,10 +61,15 @@ def register_user(session: Session, payload: UserRegistrationRequest) -> tuple[U
 
     data = payload.model_dump(exclude_none=True)
     data.pop("user_id", None)
+    raw_password = data.pop("password")
+    salt, password_hash = hash_password(raw_password)
+    data["password_salt"] = salt
+    data["password_hash"] = password_hash
 
     if existing_user:
         for key, value in data.items():
             setattr(existing_user, key, value)
+        existing_user.last_login_at = datetime.utcnow()
         session.flush()
         session.refresh(existing_user)
         return existing_user, False
@@ -75,3 +82,18 @@ def register_user(session: Session, payload: UserRegistrationRequest) -> tuple[U
     session.flush()
     session.refresh(user)
     return user, True
+
+
+def authenticate_user(session: Session, email: str, password: str) -> Optional[User]:
+    """Authenticate a user by email and password."""
+    user = session.execute(select(User).where(User.email == email)).scalar_one_or_none()
+    if user and verify_password(password, user.password_salt, user.password_hash):
+        user.last_login_at = datetime.utcnow()
+        session.flush()
+        return user
+    return None
+
+
+def get_user_by_email(session: Session, email: str) -> Optional[User]:
+    """Get a user by their email address."""
+    return session.execute(select(User).where(User.email == email)).scalar_one_or_none()

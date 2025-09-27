@@ -129,3 +129,19 @@ keywords
 2025-09-27 17:27:21,571 [INFO] app.agents.router :: Service agent response
 2025-09-27 17:27:21,589 [INFO] app.agents.router :: Queued service task
 2025-09-27 17:27:21,604 [INFO] alertmate.server :: Chat completed
+2025-09-27 18:06:00,079 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 18:06:00,220 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 18:06:02,000 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 18:06:02,000 [INFO] app.agents.router :: Front agent output
+2025-09-27 18:06:02,033 [INFO] app.agents.router :: Queued service task
+2025-09-27 18:06:02,042 [INFO] alertmate.server :: Chat completed
+2025-09-27 18:06:56,885 [INFO] app.agents.router :: Processing dispatch request
+2025-09-27 18:06:56,903 [INFO] app.agents.router :: Front agent dispatch
+2025-09-27 18:06:57,458 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 18:06:57,458 [INFO] app.agents.router :: Front agent output
+2025-09-27 18:06:57,982 [INFO] httpx :: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-27 18:06:57,998 [INFO] app.agents.router :: Service agent response
+2025-09-27 18:06:58,019 [INFO] app.agents.router :: Queued service task
+2025-09-27 18:06:58,030 [INFO] alertmate.server :: Chat completed
+2025-09-27 18:21:25,490 [ERROR] alertmate.server :: Validation error: [{'type': 'value_error', 'loc': ('body', 'password'), 'msg': 'Value error, password must include mixed case characters', 'input': '12345678', 'ctx': {'error': ValueError('password must include mixed case characters')}}]
+2025-09-27 18:21:52,751 [INFO] alertmate.server :: Signup attempt

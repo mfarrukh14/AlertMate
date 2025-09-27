@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 from typing import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
@@ -36,6 +36,36 @@ def init_db() -> None:
     from app.db import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    _apply_sqlite_migrations()
+
+
+def _apply_sqlite_migrations() -> None:
+    if engine.dialect.name != "sqlite":
+        return
+
+    inspector = inspect(engine)
+    columns = {col["name"] for col in inspector.get_columns("users")}
+    statements = []
+    if "password_salt" not in columns:
+        statements.append("ALTER TABLE users ADD COLUMN password_salt VARCHAR(64)")
+    if "password_hash" not in columns:
+        statements.append("ALTER TABLE users ADD COLUMN password_hash VARCHAR(256)")
+    if "lat" not in columns:
+        statements.append("ALTER TABLE users ADD COLUMN lat FLOAT")
+    if "lon" not in columns:
+        statements.append("ALTER TABLE users ADD COLUMN lon FLOAT")
+    if "last_login_at" not in columns:
+        statements.append("ALTER TABLE users ADD COLUMN last_login_at DATETIME")
+    if "email" not in columns:
+        statements.append("ALTER TABLE users ADD COLUMN email VARCHAR(120)")
+
+    if statements:
+        with engine.begin() as connection:
+            for statement in statements:
+                connection.exec_driver_sql(statement)
+            connection.exec_driver_sql(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)"
+            )
 
 
 @contextlib.contextmanager

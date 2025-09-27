@@ -43,7 +43,10 @@ class UserRegistrationRequest(BaseModel):
     emergency_contact_name: Optional[str] = Field(default=None, max_length=120)
     emergency_contact_phone: Optional[str] = Field(default=None, max_length=32)
     date_of_birth: Optional[date] = Field(default=None)
-    email: Optional[EmailStr] = Field(default=None)
+    email: EmailStr
+    password: str = Field(..., min_length=8, max_length=128)
+    lat: float = Field(..., ge=-90, le=90)
+    lon: float = Field(..., ge=-180, le=180)
     city: Optional[str] = Field(default=None, max_length=80)
 
     @field_validator("blood_group")
@@ -66,6 +69,17 @@ class UserRegistrationRequest(BaseModel):
             raise ValueError("cnic must contain exactly 13 digits")
         return f"{digits[:5]}-{digits[5:12]}-{digits[12:]}"
 
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        if value.strip() != value:
+            raise ValueError("password cannot start or end with whitespace")
+        if value.lower() == value or value.upper() == value:
+            raise ValueError("password must include mixed case characters")
+        if not any(ch.isdigit() for ch in value):
+            raise ValueError("password must include at least one digit")
+        return value
+
 
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -80,6 +94,23 @@ class UserResponse(BaseModel):
     emergency_contact_name: Optional[str]
     emergency_contact_phone: Optional[str]
     date_of_birth: Optional[date]
-    email: Optional[EmailStr]
+    email: EmailStr
     city: Optional[str]
+    lat: Optional[float]
+    lon: Optional[float]
+    last_login_at: Optional[datetime]
     created_at: datetime
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=8, max_length=128)
+
+
+class AuthenticatedUser(BaseModel):
+    id: int
+    user_id: str
+    name: str
+    email: EmailStr
+    lat: Optional[float]
+    lon: Optional[float]

@@ -11,14 +11,12 @@ from app.db.models import ConversationMessage, ConversationRole, User
 
 
 def ensure_user(session: Session, user_id: str) -> User:
-    """Fetch a user by ID or create a guest placeholder if missing."""
+    """Fetch a user by ID or raise if they do not exist."""
     user = session.execute(
         select(User).where(User.user_id == user_id)
     ).scalar_one_or_none()
     if user is None:
-        user = User(user_id=user_id, name="Guest")
-        session.add(user)
-        session.flush()
+        raise ValueError("User session not found. Please sign in again.")
     return user
 
 
