@@ -16,8 +16,9 @@ from app.utils.urdu_language import (
     get_urdu_follow_up_message,
 )
 
-def test_urdu_input(text):
+def test_urdu_input():
     """Test a single Urdu input and show all results."""
+    text = "ایمبولینس چاہیے، مریض بے ہوش ہے"
     print(f"\n📝 Testing: '{text}'")
     print("-" * 50)
     

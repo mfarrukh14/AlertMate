@@ -72,26 +72,30 @@ def get_current_user(
     session: Session = Depends(get_session)
 ) -> Optional[UserResponse]:
     """Get the current authenticated user from session cookie."""
+    logger.info(f"All cookies received: {dict(request.cookies)}")
+    logger.info(f"Looking for cookie name: {SESSION_COOKIE_NAME}")
     session_token = request.cookies.get(SESSION_COOKIE_NAME)
-    logger.debug(f"Session token from cookie: {session_token is not None}")
+    logger.info(f"Session token from cookie: {session_token is not None}")
     
     if not session_token:
-        logger.debug("No session token found")
+        logger.info("No session token found")
         return None
         
+    logger.info(f"Verifying token: {session_token[:50]}...")
     payload = verify_session_token(session_token)
-    logger.debug(f"Token verification result: {payload is not None}")
+    logger.info(f"Token verification result: {payload is not None}")
     
     if not payload:
-        logger.debug("Token verification failed")
+        logger.info("Token verification failed")
         return None
         
     try:
+        logger.info(f"Looking up user: {payload['user_id']}")
         user = get_user_by_user_id(session, payload["user_id"])
-        logger.debug(f"User found: {user.user_id}")
+        logger.info(f"User found: {user.user_id}")
         return UserResponse.model_validate(user)
     except UserNotFoundError:
-        logger.debug("User not found in database")
+        logger.info(f"User not found in database: {payload['user_id']}")
         return None
 
 

@@ -246,6 +246,19 @@ class FrontDispatcherAgent:
             return True
 
         tokens = [token for token in re.findall(r"[a-z0-9']+", normalized) if token not in _STOPWORDS]
+        
+        # For Urdu text, also check the keywords directly since tokens might be empty
+        language = detect_urdu_language(query)
+        if language in ['urdu', 'mixed'] and not tokens:
+            # Check if any of the extracted keywords indicate emergency
+            urdu_emergency_tokens = set()
+            for service_type in ServiceType:
+                if service_type != ServiceType.GENERAL:
+                    urdu_emergency_tokens.update(get_urdu_service_keywords(service_type.value))
+            
+            if any(keyword in urdu_emergency_tokens for keyword in keywords):
+                return False
+        
         if not tokens:
             return True
 

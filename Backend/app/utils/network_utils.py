@@ -50,7 +50,7 @@ def should_use_minimal_response(network_quality: NetworkQuality, urgency: int) -
         return True
     
     # For medium connections, use minimal for high urgency (need quick responses)
-    if network_quality == NetworkQuality.MEDIUM and urgency >= 2:
+    if network_quality == NetworkQuality.MEDIUM and urgency <= 2:
         return True
     
     # For unknown connections, assume slow and use minimal
