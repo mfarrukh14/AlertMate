@@ -269,9 +269,9 @@ def signup_endpoint(
             key=SESSION_COOKIE_NAME,
             value=session_token,
             max_age=SESSION_MAX_AGE,
-            httponly=True,
+            httponly=False,  # Allow JS access for debugging
             secure=False,  # Set to True in production with HTTPS
-            samesite="lax"
+            samesite=None  # Allow cross-origin for development
         )
         
     except UserConflictError as exc:

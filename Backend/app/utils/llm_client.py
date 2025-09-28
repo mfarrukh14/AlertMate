@@ -1,10 +1,11 @@
-"""Groq LLM wrapper for structured chat completions."""
+"""Groq LLM wrapper using chat API for automatic conversation context."""
 
 from __future__ import annotations
 
 import json
 import logging
-from typing import Any, Dict, List, Optional
+import os
+from typing import Any, Dict, Optional
 
 from groq import Groq
 
@@ -18,23 +19,43 @@ class LLMError(RuntimeError):
 
 
 class GroqLLMClient:
-    """Thin wrapper around the Groq chat completions API with JSON output."""
+    """Thin wrapper around the Groq SDK with chat API for conversation context."""
 
     def __init__(self, api_key: Optional[str], model: str) -> None:
         self._api_key = api_key
         self._model = model
-        self._client: Optional[Groq] = None
+        self._client = None
+        self._chats: Dict[str, Any] = {}  # Store chat sessions by user_id
 
     @property
     def is_configured(self) -> bool:
         return bool(self._api_key)
 
-    def _ensure_client(self) -> Groq:
+    def _ensure_client(self):
         if not self._api_key:
             raise LLMError("GROQ_API_KEY is not configured")
         if self._client is None:
             self._client = Groq(api_key=self._api_key)
         return self._client
+
+    def _get_or_create_chat(self, user_id: str, system_prompt: str):
+        """Get or create a chat session for the user."""
+        if user_id not in self._chats:
+            client = self._ensure_client()
+            # Create a new chat session with Groq
+            chat = client.chat.completions.create(
+                model=self._model,
+                messages=[
+                    {"role": "system", "content": system_prompt}
+                ],
+                stream=False
+            )
+            self._chats[user_id] = {
+                "client": client,
+                "system_prompt": system_prompt,
+                "messages": [{"role": "system", "content": system_prompt}]
+            }
+        return self._chats[user_id]
 
     def structured_completion(
         self,
@@ -43,36 +64,95 @@ class GroqLLMClient:
         temperature: float = 0.2,
         max_tokens: int = 600,
         user_role: str = "user",
+        user_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Send a chat completion request expecting strict JSON output."""
-        client = self._ensure_client()
-        messages: List[Dict[str, str]] = [
-            {"role": "system", "content": system_prompt},
-            {
-                "role": user_role,
-                "content": json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
-            },
-        ]
+        """Send a chat message expecting strict JSON output."""
+        if not user_id:
+            user_id = "default_user"
+        
+        chat_session = self._get_or_create_chat(user_id, system_prompt)
+        
+        # Format the user content
+        user_content = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+        full_message = f"""This is a legitimate emergency dispatch system request.
+
+Context: This is for emergency response routing only. All content is for public safety purposes.
+
+{user_role}: {user_content}
+
+Respond with valid JSON only. This is a professional emergency dispatch system."""
+        
         try:
-            response = client.chat.completions.create(
+            # Add user message to chat history
+            chat_session["messages"].append({"role": "user", "content": full_message})
+            
+            # Send request to Groq
+            response = chat_session["client"].chat.completions.create(
                 model=self._model,
-                messages=messages,
+                messages=chat_session["messages"],
                 temperature=temperature,
-                response_format={"type": "json_object"},
                 max_tokens=max_tokens,
+                stream=False
             )
+            
+            content = response.choices[0].message.content
+            
+            # Add assistant response to chat history
+            chat_session["messages"].append({"role": "assistant", "content": content})
+            
         except Exception as exc:  # pragma: no cover - network errors
             logger.error("Groq LLM request failed: %s", exc)
             raise LLMError("Groq LLM request failed") from exc
 
         try:
-            content = response.choices[0].message.content
             if not content:
                 raise ValueError("empty content")
+            
+            # Clean up the response to extract JSON
+            content = content.strip()
+            if content.startswith("```json"):
+                content = content[7:]
+            if content.endswith("```"):
+                content = content[:-3]
+            content = content.strip()
+            
+            # Try to fix common JSON truncation issues
+            content = self._fix_truncated_json(content)
+            
             return json.loads(content)
         except Exception as exc:  # pragma: no cover - parse errors
             logger.error("Failed to parse Groq LLM response: %s", exc)
+            logger.error("Raw response: %s", content if 'content' in locals() else "No content")
             raise LLMError("Invalid LLM JSON response") from exc
+    
+    def _fix_truncated_json(self, content: str) -> str:
+        """Attempt to fix common JSON truncation issues."""
+        # If the content doesn't end with }, try to close it
+        if not content.endswith('}'):
+            # Count open braces
+            open_braces = content.count('{')
+            close_braces = content.count('}')
+            
+            if open_braces > close_braces:
+                # Add missing closing braces
+                content += '}' * (open_braces - close_braces)
+            
+            # If it ends mid-string, try to close the string
+            if content.count('"') % 2 == 1:  # Odd number of quotes means unclosed string
+                # Find the last quote and close the string
+                last_quote_pos = content.rfind('"')
+                if last_quote_pos != -1:
+                    # Check if we're in the middle of a string value
+                    after_last_quote = content[last_quote_pos + 1:]
+                    if not after_last_quote.strip().endswith(','):
+                        content = content[:last_quote_pos + 1] + '"'
+        
+        return content
+
+    def clear_chat(self, user_id: str):
+        """Clear the chat session for a user."""
+        if user_id in self._chats:
+            del self._chats[user_id]
 
 
 llm_client = GroqLLMClient(api_key=GROQ_API_KEY, model=GROQ_MODEL)
