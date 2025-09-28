@@ -1,4 +1,4 @@
-"""Gemini LLM wrapper using chat API for automatic conversation context."""
+"""Groq LLM wrapper using chat API for automatic conversation context."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ import logging
 import os
 from typing import Any, Dict, Optional
 
-from google import genai
+from groq import Groq
 
-from app.config import GEMINI_API_KEY, GEMINI_MODEL
+from app.config import GROQ_API_KEY, GROQ_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +18,8 @@ class LLMError(RuntimeError):
     """Raised when the LLM request fails or returns invalid output."""
 
 
-class GeminiLLMClient:
-    """Thin wrapper around the new Google GenAI SDK with chat API for conversation context."""
+class GroqLLMClient:
+    """Thin wrapper around the Groq SDK with chat API for conversation context."""
 
     def __init__(self, api_key: Optional[str], model: str) -> None:
         self._api_key = api_key
@@ -33,22 +33,28 @@ class GeminiLLMClient:
 
     def _ensure_client(self):
         if not self._api_key:
-            raise LLMError("GEMINI_API_KEY is not configured")
+            raise LLMError("GROQ_API_KEY is not configured")
         if self._client is None:
-            # Set the API key in environment for the new SDK
-            os.environ["GEMINI_API_KEY"] = self._api_key
-            self._client = genai.Client()
+            self._client = Groq(api_key=self._api_key)
         return self._client
 
     def _get_or_create_chat(self, user_id: str, system_prompt: str):
         """Get or create a chat session for the user."""
         if user_id not in self._chats:
             client = self._ensure_client()
-            # Create a new chat session
-            chat = client.chats.create(model=self._model)
-            # Send the system prompt as the first message
-            chat.send_message(system_prompt)
-            self._chats[user_id] = chat
+            # Create a new chat session with Groq
+            chat = client.chat.completions.create(
+                model=self._model,
+                messages=[
+                    {"role": "system", "content": system_prompt}
+                ],
+                stream=False
+            )
+            self._chats[user_id] = {
+                "client": client,
+                "system_prompt": system_prompt,
+                "messages": [{"role": "system", "content": system_prompt}]
+            }
         return self._chats[user_id]
 
     def structured_completion(
@@ -64,7 +70,7 @@ class GeminiLLMClient:
         if not user_id:
             user_id = "default_user"
         
-        chat = self._get_or_create_chat(user_id, system_prompt)
+        chat_session = self._get_or_create_chat(user_id, system_prompt)
         
         # Format the user content
         user_content = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
@@ -77,11 +83,26 @@ Context: This is for emergency response routing only. All content is for public 
 Respond with valid JSON only. This is a professional emergency dispatch system."""
         
         try:
-            response = chat.send_message(full_message)
-            content = response.text
+            # Add user message to chat history
+            chat_session["messages"].append({"role": "user", "content": full_message})
+            
+            # Send request to Groq
+            response = chat_session["client"].chat.completions.create(
+                model=self._model,
+                messages=chat_session["messages"],
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stream=False
+            )
+            
+            content = response.choices[0].message.content
+            
+            # Add assistant response to chat history
+            chat_session["messages"].append({"role": "assistant", "content": content})
+            
         except Exception as exc:  # pragma: no cover - network errors
-            logger.error("Gemini LLM request failed: %s", exc)
-            raise LLMError("Gemini LLM request failed") from exc
+            logger.error("Groq LLM request failed: %s", exc)
+            raise LLMError("Groq LLM request failed") from exc
 
         try:
             if not content:
@@ -100,7 +121,7 @@ Respond with valid JSON only. This is a professional emergency dispatch system."
             
             return json.loads(content)
         except Exception as exc:  # pragma: no cover - parse errors
-            logger.error("Failed to parse Gemini LLM response: %s", exc)
+            logger.error("Failed to parse Groq LLM response: %s", exc)
             logger.error("Raw response: %s", content if 'content' in locals() else "No content")
             raise LLMError("Invalid LLM JSON response") from exc
     
@@ -134,4 +155,4 @@ Respond with valid JSON only. This is a professional emergency dispatch system."
             del self._chats[user_id]
 
 
-llm_client = GeminiLLMClient(api_key=GEMINI_API_KEY, model=GEMINI_MODEL)
+llm_client = GroqLLMClient(api_key=GROQ_API_KEY, model=GROQ_MODEL)

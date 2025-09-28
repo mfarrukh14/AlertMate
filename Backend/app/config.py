@@ -18,8 +18,8 @@ DEFAULT_TIMEOUT_SECONDS = 10
 
 load_dotenv(BASE_DIR / ".env")
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama3-8b-8192")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///alertmate.db")
 SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY", "change-me-session-secret")
 SESSION_COOKIE_NAME = os.getenv("SESSION_COOKIE_NAME", "alertmate_session")
