@@ -21,7 +21,7 @@ class DispatchRequest(BaseModel):
     lang: str = Field(..., min_length=2, max_length=5)
     lat: float
     lon: float
-    user_query: str = Field(..., min_length=5)
+    user_query: str = Field(..., min_length=1)
     timestamp: Optional[str] = Field(
         default=None,
         description="ISO 8601 timestamp supplied by the client if available.",
@@ -99,9 +99,6 @@ class ChatRequest(BaseModel):
         lon = self.lon if self.lon is not None else 0.0
         user_location = self.user_location or "unspecified"
         query = self.user_query.strip()
-        if len(query) < 5:
-            repeated = (query + " ") * 3
-            query = repeated.strip()
 
         return DispatchRequest(
             userid=self.userid,

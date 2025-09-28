@@ -1,0 +1,100 @@
+warning: in the working copy of 'Backend/app/agents/disaster_agent.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backend/app/utils/llm_client.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backend/requirements.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backend/server.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/__version__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_api.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_auth.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_client.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_config.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_content.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_decoders.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_exceptions.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_main.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_multipart.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_status_codes.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_transports/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_transports/asgi.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_transports/base.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_transports/default.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_transports/mock.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_transports/wsgi.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_types.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_urlparse.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_urls.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'venv/Lib/site-packages/httpx/_utils.py', LF will be replaced by CRLF the next time Git touches it
+Backend/README.md
+Backend/app/agents/disaster_agent.py
+Backend/app/agents/front_agent.py
+Backend/app/agents/medical_agent.py
+Backend/app/agents/police_agent.py
+Backend/app/agents/router.py
+Backend/app/config.py
+Backend/app/models/dispatch.py
+Backend/app/utils/llm_client.py
+Backend/app/utils/network_utils.py
+Backend/env.example
+Backend/logs/alertmate.log
+Backend/requirements.txt
+venv/Lib/site-packages/__pycache__/jsonpatch.cpython-310.pyc
+venv/Lib/site-packages/__pycache__/jsonpointer.cpython-310.pyc
+venv/Lib/site-packages/__pycache__/typing_extensions.cpython-310.pyc
+venv/Lib/site-packages/_distutils_hack/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/annotated_types/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/anyio/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/anyio/__pycache__/from_thread.cpython-310.pyc
+venv/Lib/site-packages/anyio/__pycache__/lowlevel.cpython-310.pyc
+venv/Lib/site-packages/anyio/__pycache__/to_thread.cpython-310.pyc
+venv/Lib/site-packages/anyio/_backends/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/anyio/_backends/__pycache__/_asyncio.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_contextmanagers.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_eventloop.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_exceptions.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_fileio.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_resources.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_signals.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_sockets.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_streams.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_subprocesses.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_synchronization.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_tasks.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_tempfile.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_testing.cpython-310.pyc
+venv/Lib/site-packages/anyio/_core/__pycache__/_typedattr.cpython-310.pyc
+venv/Lib/site-packages/anyio/abc/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/anyio/abc/__pycache__/_eventloop.cpython-310.pyc
+venv/Lib/site-packages/anyio/abc/__pycache__/_resources.cpython-310.pyc
+venv/Lib/site-packages/anyio/abc/__pycache__/_sockets.cpython-310.pyc
+venv/Lib/site-packages/anyio/abc/__pycache__/_streams.cpython-310.pyc
+venv/Lib/site-packages/anyio/abc/__pycache__/_subprocesses.cpython-310.pyc
+venv/Lib/site-packages/anyio/abc/__pycache__/_tasks.cpython-310.pyc
+venv/Lib/site-packages/anyio/abc/__pycache__/_testing.cpython-310.pyc
+venv/Lib/site-packages/anyio/streams/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/anyio/streams/__pycache__/memory.cpython-310.pyc
+venv/Lib/site-packages/anyio/streams/__pycache__/stapled.cpython-310.pyc
+venv/Lib/site-packages/anyio/streams/__pycache__/tls.cpython-310.pyc
+venv/Lib/site-packages/certifi/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/certifi/__pycache__/core.cpython-310.pyc
+venv/Lib/site-packages/charset_normalizer/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/charset_normalizer/__pycache__/api.cpython-310.pyc
+venv/Lib/site-packages/charset_normalizer/__pycache__/cd.cpython-310.pyc
+venv/Lib/site-packages/charset_normalizer/__pycache__/constant.cpython-310.pyc
+venv/Lib/site-packages/charset_normalizer/__pycache__/legacy.cpython-310.pyc
+venv/Lib/site-packages/charset_normalizer/__pycache__/models.cpython-310.pyc
+venv/Lib/site-packages/charset_normalizer/__pycache__/utils.cpython-310.pyc
+venv/Lib/site-packages/charset_normalizer/__pycache__/version.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/__init__.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/_compat.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/_utils.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/_winconsole.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/core.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/decorators.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/exceptions.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/formatting.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/globals.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/parser.cpython-310.pyc
+venv/Lib/site-packages/click/__pycache__/termui.cpython-310.pyc
+venv/Lib/site-packages/cli
