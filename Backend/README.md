@@ -9,7 +9,7 @@ Minimal FastAPI + LangGraph multi-agent router that triages emergency requests a
 - LangGraph orchestrates the front and downstream service agents while sharing structured state between nodes.
 - Service agents (medical, police, disaster) choose subservices, trigger mocked actions, and ask targeted follow-up questions when needed.
 - Smart conversation guardrails detect casual greetings or low-information chat, keep the request with the front agent, and ask for more detail before paging any service.
-- Optional Groq LLM integration for nuanced routing with graceful fallback to deterministic heuristics.
+- Optional Gemini LLM integration for nuanced routing with graceful fallback to deterministic heuristics.
 - Structured JSON responses containing front-agent reasoning, downstream action, `trace_id`, and follow-up prompts.
 - Rotating file + console logging pipeline for observability.
 - Friendly landing page at `/` linking to Swagger UI, OpenAPI JSON, and chat usage tips.
@@ -30,11 +30,11 @@ pip install -r requirements.txt
 
 ### Configuration
 
-Create a `.env` file (or set environment variables) if you plan to use the Groq LLM-backed agents:
+Create a `.env` file (or set environment variables) if you plan to use the Gemini LLM-backed agents:
 
 ```text
-GROQ_API_KEY=your_api_key_here
-GROQ_MODEL=llama-3.3-70b-versatile
+GEMINI_API_KEY=your_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
 ```
 
 Without these variables the system falls back to heuristic routing logic.

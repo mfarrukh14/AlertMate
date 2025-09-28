@@ -57,6 +57,10 @@ class DisasterServiceAgent(BaseServiceAgent):
         system_prompt = (
             "You are the DISASTER response agent. Select the best subservice from the provided list"
             " based on the scenario and urgency."
+            "\nCRITICAL: If user_query is a number or range (like '25', '45-60', '100+') and this appears to be a follow-up response, "
+            "ALWAYS select 'evacuation_guidance' subservice and set follow_up_required false."
+            "\nDO NOT ask for location - the system already has the user's location from user_location, lat, and lon fields."
+            "\nFor evacuation-related follow-ups (numbers after 'How many people need evacuation assistance?'), use 'evacuation_guidance' subservice."
             "\nIf immediate information is missing, set follow_up_required true with a focused question."
             "\nIf action can proceed, set follow_up_required false and describe the action in action_taken."
             "\nReturn strict JSON with keys: subservice, action_taken, follow_up_required, follow_up_question, metadata."
@@ -68,7 +72,8 @@ class DisasterServiceAgent(BaseServiceAgent):
             system_prompt=system_prompt,
             payload=payload,
             temperature=0.2,
-            max_tokens=500,
+            max_tokens=800,
+            user_id=context.request.userid,
         )
 
         subservice = str(result.get("subservice", "")).strip()
@@ -95,8 +100,15 @@ class DisasterServiceAgent(BaseServiceAgent):
     ) -> str:
         query = context.request.user_query.lower()
 
+        # Check if this is a follow-up response (short query with numbers)
+        is_followup = len(query.strip()) <= 10 and any(char.isdigit() for char in query)
+        if is_followup:
+            return "evacuation_guidance"
+
         if any(term in query for term in ["evacuate", "shelter", "flood", "safe place"]):
             return "evacuation_guidance"
+        if any(term in query for term in ["fire", "burning", "smoke"]):
+            return "infrastructure_alert"
         if any(term in query for term in ["water", "food", "supplies", "aid"]):
             return "resource_request"
         if any(term in query for term in ["bridge", "road", "infrastructure", "damage"]):
@@ -104,6 +116,60 @@ class DisasterServiceAgent(BaseServiceAgent):
         if "casualty" in query or "injured" in query:
             return "mass_casualty_triage"
         return "situation_monitor"
+
+    def perform_subservice(
+        self, context: AgentContext, subservice: str, front_output: FrontAgentOutput
+    ) -> ServiceAgentResponse:
+        """Synchronous version of perform_subservice."""
+        handler = self.subservices[subservice]
+        if subservice == "evacuation_guidance":
+            # For sync version, use basic evacuation guidance without async calls
+            metadata = handler()
+            # Check if this is a follow-up response (short query like numbers)
+            is_followup = len(context.request.user_query.strip()) <= 10 and any(char.isdigit() for char in context.request.user_query)
+            if is_followup:
+                follow_up_required = False
+                follow_up_question = None
+                action = "evacuation_coordination_initiated"
+            else:
+                follow_up_required = True
+                follow_up_question = "How many people need evacuation assistance?"
+                action = "evacuation_guidance_shared"
+        elif subservice == "resource_request":
+            metadata = handler("essential supplies")
+            follow_up_required = True
+            follow_up_question = "What specific resources and quantities are needed?"
+            action = "resource_request_logged"
+        elif subservice == "infrastructure_alert":
+            metadata = handler()
+            follow_up_required = False
+            follow_up_question = None
+            action = "infrastructure_team_alerted"
+        elif subservice == "situation_monitor":
+            metadata = handler()
+            follow_up_required = True
+            follow_up_question = "Provide status updates for each monitoring question."
+            action = "situation_monitoring_engaged"
+        elif subservice == "mass_casualty_triage":
+            # For sync version, use basic mass casualty response
+            metadata = handler()
+            follow_up_required = True
+            follow_up_question = "Number of injured individuals and their conditions?"
+            action = "mass_casualty_guidance_provided"
+        else:  # pragma: no cover
+            metadata = {}
+            follow_up_required = True
+            follow_up_question = "Provide additional disaster details."
+            action = "disaster_assessment_requested"
+
+        return ServiceAgentResponse(
+            service=self.service_type,
+            subservice=subservice,
+            action_taken=action,
+            follow_up_required=follow_up_required,
+            follow_up_question=follow_up_question,
+            metadata=metadata,
+        )
 
     async def perform_subservice_async(
         self, context: AgentContext, subservice: str, front_output: FrontAgentOutput

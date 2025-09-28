@@ -219,10 +219,34 @@ class DispatchRouter:
     @staticmethod
     def _format_front_message(front_output: FrontAgentOutput) -> str:
         parts: List[str] = []
+        
+        # Remove technical explanations and make it conversational
         if front_output.explain:
-            parts.append(front_output.explain)
+            explain = front_output.explain.lower()
+            if "urgency" in explain and "selected" in explain:
+                # Convert technical format to conversational
+                if "immediate life-threatening" in explain or "life safety" in explain:
+                    parts.append("🚨 I understand this is a life-threatening emergency. Let me get you help immediately.")
+                elif "serious" in explain or "urgent" in explain:
+                    parts.append("⚠️ I can see this is a serious situation. I'm connecting you with the right service.")
+                elif "informational" in explain or "general" in explain:
+                    parts.append("ℹ️ I've noted your request and I'm here to help.")
+                else:
+                    parts.append("I understand your situation and I'm here to help.")
+            elif "theft" in explain or "chori" in explain:
+                parts.append("I understand a theft has occurred. Let me connect you with the police.")
+            elif "broken" in explain or "toot" in explain:
+                parts.append("I understand there's been an injury. Let me get you medical help.")
+            elif "flood" in explain:
+                parts.append("I understand there's a flood situation. Let me connect you with disaster services.")
+            else:
+                # Only show non-technical explanations
+                if not any(tech_word in explain for tech_word in ["urgency", "selected", "based on", "keywords"]):
+                    parts.append(front_output.explain)
+        
         if front_output.follow_up_required and front_output.follow_up_reason:
-            parts.append(f"Follow-up: {front_output.follow_up_reason}")
+            parts.append(f"Quick question: {front_output.follow_up_reason}")
+        
         return "\n".join(part for part in parts if part).strip()
 
     @staticmethod
@@ -269,17 +293,67 @@ class DispatchRouter:
             # Fallback string representation
             return str(obj)
         
-        parts: List[str] = [
-            f"Service: {service_response.service.value} ({service_response.subservice})"
-        ]
+        parts: List[str] = []
+        
+        # Make service selection more conversational
+        service_emojis = {
+            "medical": "🏥",
+            "police": "🚔", 
+            "disaster": "🌪️",
+            "general": "📞"
+        }
+        emoji = service_emojis.get(service_response.service.value, "📞")
+        parts.append(f"{emoji} I've connected you with {service_response.service.value.upper()} services.")
+        
+        # Make action taken more conversational
         if service_response.action_taken:
-            parts.append(f"Action: {service_response.action_taken}")
+            action = service_response.action_taken.lower()
+            if "incident_report_created" in action:
+                parts.append("✅ I've created an incident report for you.")
+            elif "dispatch" in action:
+                parts.append("✅ Emergency units have been dispatched to your location.")
+            elif "alert" in action:
+                parts.append("✅ I've sent out emergency alerts.")
+            elif "non_emergency_guidance" in action:
+                parts.append("✅ I've provided guidance for your situation.")
+            elif "triage_questions" in action:
+                parts.append("✅ I've sent you some important questions to assess the situation.")
+            elif "evacuation_guidance" in action:
+                parts.append("✅ I've shared evacuation guidance with you.")
+            elif "guidance_shared" in action:
+                parts.append("✅ I've shared important information with you.")
+            else:
+                # Convert technical action to user-friendly message
+                friendly_action = action.replace("_", " ").title()
+                parts.append(f"✅ {friendly_action}")
+        
+        # Make follow-up questions more conversational
         if service_response.follow_up_required and service_response.follow_up_question:
-            parts.append(f"Follow-up: {service_response.follow_up_question}")
+            parts.append(f"❓ {service_response.follow_up_question}")
+        
+        # Make metadata more conversational
         if service_response.metadata:
             try:
                 serializable_metadata = convert_for_json(service_response.metadata)
-                parts.append(f"Metadata: {json.dumps(serializable_metadata, ensure_ascii=False)}")
+                metadata_parts = []
+                
+                # Extract key information and present it conversationally
+                if "report_number" in serializable_metadata:
+                    metadata_parts.append(f"📋 Report #: {serializable_metadata['report_number']}")
+                if "assigned_station" in serializable_metadata and isinstance(serializable_metadata["assigned_station"], dict):
+                    station = serializable_metadata["assigned_station"]
+                    if "name" in station and "phone" in station:
+                        metadata_parts.append(f"🏢 Station: {station['name']} ({station['phone']})")
+                if "eta" in serializable_metadata:
+                    metadata_parts.append(f"⏱️ ETA: {serializable_metadata['eta']}")
+                if "distance_km" in serializable_metadata:
+                    metadata_parts.append(f"📍 Distance: {serializable_metadata['distance_km']} km")
+                
+                if metadata_parts:
+                    parts.append("\n".join(metadata_parts))
+                else:
+                    # Fallback to basic metadata display
+                    parts.append(f"📊 Details: {json.dumps(serializable_metadata, ensure_ascii=False)}")
             except Exception as exc:  # pragma: no cover - resilience
                 logger.warning(
                     "Failed to serialize service metadata; sending fallback string",
@@ -289,5 +363,6 @@ class DispatchRouter:
                         "subservice": service_response.subservice,
                     },
                 )
-                parts.append(f"Metadata: {str(service_response.metadata)}")
-        return "\n".join(part for part in parts if part).strip()
+                parts.append(f"📊 Additional details: {str(service_response.metadata)}")
+        
+        return "\n\n".join(part for part in parts if part).strip()
