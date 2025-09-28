@@ -7,8 +7,8 @@ from datetime import date, datetime
 from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import Date, DateTime, Enum, Float, ForeignKey, Integer, JSON, String, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Date, DateTime, Enum, Float, ForeignKey, Integer, JSON, String, Text, Column
+from sqlalchemy.orm import relationship
 
 from app.db import Base
 from app.models.dispatch import ServiceType
@@ -29,30 +29,32 @@ class AgentTaskStatus(str, enum.Enum):
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[str] = mapped_column(String(36), unique=True, index=True, default=lambda: str(uuid4()))
-    name: Mapped[str] = mapped_column(String(120))
-    blood_group: Mapped[Optional[str]] = mapped_column(String(8), nullable=True)
-    address: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    cnic: Mapped[Optional[str]] = mapped_column(String(32), unique=True, nullable=True)
-    phone_number: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    emergency_contact_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
-    emergency_contact_phone: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    date_of_birth: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
-    email: Mapped[str] = mapped_column(String(120), unique=True)
-    password_salt: Mapped[str] = mapped_column(String(64))
-    password_hash: Mapped[str] = mapped_column(String(256))
-    lat: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    lon: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    city: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(36), unique=True, index=True, default=lambda: str(uuid4()))
+    name = Column(String(120))
+    blood_group = Column(String(8), nullable=True)
+    address = Column(String(255), nullable=True)
+    cnic = Column(String(32), unique=True, nullable=True)
+    phone_number = Column(String(32), nullable=True)
+    emergency_contact_name = Column(String(120), nullable=True)
+    emergency_contact_phone = Column(String(32), nullable=True)
+    date_of_birth = Column(Date, nullable=True)
+    email = Column(String(120), unique=True)
+    password_salt = Column(String(64))
+    password_hash = Column(String(256))
+    lat = Column(Float, nullable=True)
+    lon = Column(Float, nullable=True)
+    last_login_at = Column(DateTime, nullable=True)
+    city = Column(String(80), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-    messages: Mapped[list["ConversationMessage"]] = relationship(
+    messages = relationship(
+        "ConversationMessage",
         back_populates="user",
         cascade="all, delete-orphan",
     )
-    events: Mapped[list["ServiceEvent"]] = relationship(
+    events = relationship(
+        "ServiceEvent",
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -61,61 +63,85 @@ class User(Base):
 class ConversationMessage(Base):
     __tablename__ = "conversation_messages"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.user_id", ondelete="CASCADE"), index=True)
-    role: Mapped[ConversationRole] = mapped_column(Enum(ConversationRole))
-    content: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.user_id", ondelete="CASCADE"), index=True)
+    role = Column(Enum(ConversationRole))
+    content = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
-    user: Mapped[User] = relationship(back_populates="messages")
+    user = relationship("User", back_populates="messages")
 
 
 class AgentTask(Base):
     __tablename__ = "agent_tasks"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    trace_id: Mapped[str] = mapped_column(String(64), index=True)
-    service: Mapped[ServiceType] = mapped_column(Enum(ServiceType))
-    priority: Mapped[int] = mapped_column(Integer, default=3)
-    status: Mapped[AgentTaskStatus] = mapped_column(Enum(AgentTaskStatus), default=AgentTaskStatus.PENDING)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    payload: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    id = Column(Integer, primary_key=True, index=True)
+    trace_id = Column(String(64), index=True)
+    service = Column(Enum(ServiceType))
+    priority = Column(Integer, default=3)
+    status = Column(Enum(AgentTaskStatus), default=AgentTaskStatus.PENDING)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    payload = Column(JSON, nullable=True)
 
 
 class ServiceEventType(str, enum.Enum):
     APPOINTMENT = "appointment"
     AMBULANCE = "ambulance"
+    DISPATCH = "dispatch"
+    EMERGENCY = "emergency"
     GENERAL = "general"
 
 
 class ServiceEvent(Base):
     __tablename__ = "service_events"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.user_id", ondelete="CASCADE"), index=True)
-    trace_id: Mapped[str] = mapped_column(String(64), index=True)
-    service: Mapped[ServiceType] = mapped_column(Enum(ServiceType))
-    event_type: Mapped[ServiceEventType] = mapped_column(Enum(ServiceEventType))
-    title: Mapped[str] = mapped_column(String(160))
-    details: Mapped[dict] = mapped_column(JSON, default=dict)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.user_id", ondelete="CASCADE"), index=True)
+    trace_id = Column(String(64), index=True)
+    service = Column(Enum(ServiceType))
+    event_type = Column(Enum(ServiceEventType))
+    title = Column(String(160))
+    details = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
-    user: Mapped[User] = relationship(back_populates="events")
+    user = relationship("User", back_populates="events")
+
+
+class DispatchEvent(Base):
+    """Tracks when emergency services are dispatched."""
+    __tablename__ = "dispatch_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.user_id", ondelete="CASCADE"), index=True)
+    trace_id = Column(String(64), index=True)
+    service = Column(Enum(ServiceType))
+    subservice = Column(String(100))
+    action_taken = Column(String(255), nullable=True)
+    priority = Column(Integer, default=3)
+    user_location = Column(String(255))
+    user_lat = Column(Float, nullable=True)
+    user_lon = Column(Float, nullable=True)
+    status = Column(String(50), default="dispatched")  # dispatched, in_progress, completed, cancelled
+    event_metadata = Column(JSON, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User")
 
 
 class ServiceLocation(Base):
     """Reference data for hospitals, police stations, disaster centers, etc."""
     __tablename__ = "service_locations"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(255), index=True)
-    service_type: Mapped[ServiceType] = mapped_column(Enum(ServiceType), index=True)
-    latitude: Mapped[float] = mapped_column(Float)
-    longitude: Mapped[float] = mapped_column(Float)
-    city: Mapped[str] = mapped_column(String(80), index=True)
-    address: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    phone: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    is_active: Mapped[bool] = mapped_column(Integer, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), index=True)
+    service_type = Column(Enum(ServiceType), index=True)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    city = Column(String(80), index=True)
+    address = Column(Text, nullable=True)
+    phone = Column(String(32), nullable=True)
+    is_active = Column(Integer, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 

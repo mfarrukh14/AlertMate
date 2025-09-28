@@ -174,26 +174,38 @@ def get_dispatch_locations(session: Session, hours: int = 24) -> List[Dict[str, 
     """Get dispatch locations with coordinates for map visualization."""
     since = datetime.utcnow() - timedelta(hours=hours)
     
-    # Join tasks with users to get location data
-    dispatches = session.execute(
-        select(AgentTask, User)
-        .join(User, AgentTask.user_id == User.user_id)
+    # Get agent tasks and extract user_id from payload
+    tasks = session.execute(
+        select(AgentTask)
         .where(and_(
             AgentTask.created_at >= since,
-            User.lat.isnot(None),
-            User.lon.isnot(None),
-            AgentTask.service_type != ServiceType.GENERAL
+            AgentTask.service != ServiceType.GENERAL,
+            AgentTask.payload.isnot(None)
         ))
         .order_by(AgentTask.created_at.desc())
     ).all()
     
     locations = []
-    for task, user in dispatches:
+    for task_row in tasks:
+        task = task_row[0]  # Extract the AgentTask object
+        if not task.payload or 'user_id' not in task.payload:
+            continue
+            
+        user_id = task.payload['user_id']
+        user = session.execute(
+            select(User).where(User.user_id == user_id)
+        ).scalar_one_or_none()
+        
+        if not user or user.lat is None or user.lon is None:
+            continue
+            
         locations.append({
             "id": task.id,
             "latitude": float(user.lat),
             "longitude": float(user.lon),
-            "service": task.service_type.value,
+            "user_lat": float(user.lat),
+            "user_lon": float(user.lon),
+            "service": task.service.value,
             "priority": task.priority,
             "status": task.status.value,
             "created_at": task.created_at.isoformat(),

@@ -19,6 +19,8 @@ from app.db.models import ConversationRole
 from app.models.dispatch import DispatchRequest, FrontAgentOutput, ServiceAgentResponse, ServiceType
 from app.services.memory import ensure_user, get_recent_messages, record_message
 from app.services.queue_service import enqueue_task
+from app.services.dispatch_events import record_dispatch_event
+from app.models.dispatch_events import DispatchEventCreate
 
 logger = logging.getLogger(__name__)
 
@@ -204,6 +206,24 @@ class DispatchRouter:
                 priority=front_output.urgency,
                 payload=task_payload,
             )
+            
+            # Record dispatch event for tracking and analytics
+            if service_response.service != ServiceType.GENERAL:
+                dispatch_event = DispatchEventCreate(
+                    user_id=request.userid,
+                    trace_id=trace_id,
+                    service=service_response.service,
+                    subservice=service_response.subservice,
+                    action_taken=service_response.action_taken,
+                    priority=front_output.urgency,
+                    user_location=request.user_location,
+                    user_lat=request.lat,
+                    user_lon=request.lon,
+                    status="dispatched",
+                    event_metadata=service_response.metadata
+                )
+                record_dispatch_event(session, dispatch_event)
+            
             logger.info(
                 "Queued service task",
                 extra={

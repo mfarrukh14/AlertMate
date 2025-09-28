@@ -45,19 +45,20 @@ def detect_network_quality(network_quality: Optional[str], connection_type: Opti
 
 def should_use_minimal_response(network_quality: NetworkQuality, urgency: int) -> bool:
     """Determine if minimal response should be used based on network quality and urgency."""
-    # Always use minimal responses for slow connections
+    # Only use minimal responses for very slow connections
     if network_quality == NetworkQuality.SLOW:
         return True
     
-    # For medium connections, use minimal for high urgency (need quick responses)
-    if network_quality == NetworkQuality.MEDIUM and urgency <= 2:
+    # For medium connections, only use minimal for very high urgency (need quick responses)
+    if network_quality == NetworkQuality.MEDIUM and urgency == 1:
         return True
     
-    # For unknown connections, assume good connection and use full responses
+    # For unknown connections, treat as good connection and use full responses
     if network_quality == NetworkQuality.UNKNOWN:
         return False
     
     return False
+
 
 
 def build_minimal_response(front: FrontAgentOutput, service: ServiceAgentResponse, language: str = "en") -> str:
