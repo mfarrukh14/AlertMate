@@ -55,6 +55,9 @@ class PoliceServiceAgent(BaseServiceAgent):
         system_prompt = (
             "You are the POLICE agent. Choose one subservice from the provided list based on"
             " the user's situation and urgency."
+            "\nIMPORTANT: If the user_query is a short response (like a number, yes/no, brief answer, age, count, or brief description) and this appears to be a follow-up to a previous question, DO NOT ask for more information. Process the response and set follow_up_required false."
+            "\nDO NOT ask for location - the system already has the user's location from user_location, lat, and lon fields."
+            "\nDO NOT ask for basic incident details that are already clear from the request."
             "\nSet follow_up_required true only if more information is essential, and craft a concise question."
             "\nIf action can proceed, set follow_up_required false and describe the action_taken briefly."
             "\nReturn strict JSON with keys: subservice, action_taken, follow_up_required, follow_up_question, metadata."
@@ -66,7 +69,8 @@ class PoliceServiceAgent(BaseServiceAgent):
             system_prompt=system_prompt,
             payload=payload,
             temperature=0.2,
-            max_tokens=450,
+            max_tokens=800,
+            user_id=context.request.userid,
         )
 
         subservice = str(result.get("subservice", "")).strip()
@@ -93,15 +97,66 @@ class PoliceServiceAgent(BaseServiceAgent):
     ) -> str:
         query = context.request.user_query.lower()
 
-        if front_output.urgency == 1 or any(term in query for term in ["immediate", "now", "armed", "attack"]):
+        # Check if this is a follow-up response (short query with numbers)
+        is_followup = len(query.strip()) <= 10 and any(char.isdigit() for char in query)
+        if is_followup:
+            return "report_incident"
+
+        if front_output.urgency == 1 or any(term in query for term in ["immediate", "now", "armed", "attack", "accident", "crash", "collision"]):
             return "emergency_response"
-        if any(term in query for term in ["report", "stole", "robbery", "theft"]):
+        if any(term in query for term in ["report", "stole", "robbery", "theft", "stolen"]):
             return "report_incident"
         if "suspect" in query or "description" in query:
             return "suspect_tracking"
         if "evidence" in query or "camera" in query:
             return "evidence_advice"
         return "non_emergency_guidance"
+
+    def perform_subservice(
+        self, context: AgentContext, subservice: str, front_output: FrontAgentOutput
+    ) -> ServiceAgentResponse:
+        """Synchronous version of perform_subservice."""
+        handler = self.subservices[subservice]
+        if subservice == "emergency_response":
+            # For sync version, use basic emergency response without async calls
+            metadata = {"status": "emergency_response_initiated"}
+            follow_up_required = True
+            follow_up_question = "Are you currently safe and sheltered?"
+            action = "emergency_units_dispatched"
+        elif subservice == "report_incident":
+            metadata = {"status": "incident_report_created"}
+            follow_up_required = True
+            follow_up_question = "Provide suspect description or distinguishing features."
+            action = "incident_report_created"
+        elif subservice == "suspect_tracking":
+            metadata = handler() if callable(handler) else {}
+            follow_up_required = True
+            follow_up_question = "Describe the suspect's appearance and direction of travel."
+            action = "suspect_information_requested"
+        elif subservice == "evidence_advice":
+            metadata = handler() if callable(handler) else {}
+            follow_up_required = False
+            follow_up_question = None
+            action = "evidence_preservation_guidance_shared"
+        elif subservice == "non_emergency_guidance":
+            metadata = handler() if callable(handler) else {}
+            follow_up_required = False
+            follow_up_question = None
+            action = "non_emergency_guidance_sent"
+        else:  # pragma: no cover
+            metadata = {}
+            follow_up_required = True
+            follow_up_question = "Please provide additional incident details."
+            action = "police_assessment_requested"
+
+        return ServiceAgentResponse(
+            service=self.service_type,
+            subservice=subservice,
+            action_taken=action,
+            follow_up_required=follow_up_required,
+            follow_up_question=follow_up_question,
+            metadata=metadata,
+        )
 
     async def perform_subservice_async(
         self, context: AgentContext, subservice: str, front_output: FrontAgentOutput

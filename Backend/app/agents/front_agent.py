@@ -62,6 +62,41 @@ _SERVICE_KEYWORDS = {
         "breathing",
         "leg",
         "arm",
+        "choking",
+        "choke",
+        "emergency",
+        "urgent",
+        "critical",
+        "heart",
+        "stroke",
+        "seizure",
+        "seizures",
+        "fits",
+        "fit",
+        "convulsions",
+        "convulsing",
+        "epilepsy",
+        "epileptic",
+        "allergic",
+        "reaction",
+        "poison",
+        "overdose",
+        "drowning",
+        "burn",
+        "shock",
+        "medical",
+        "sick",
+        "illness",
+        "fever",
+        "high temperature",
+        "accident",
+        "crash",
+        "collision",
+        "bike accident",
+        "car accident",
+        "road accident",
+        "motorcycle accident",
+        "vehicle accident",
     },
     ServiceType.POLICE: {
         "robbery",
@@ -109,6 +144,25 @@ _URGENCY_1 = {
     "explosion",
     "trapped",
     "immediate danger",
+    "choking",
+    "can't breathe",
+    "drowning",
+    "severe allergic reaction",
+    "fits",
+    "seizure",
+    "seizures",
+    "convulsions",
+    "having fits",
+    "epileptic seizure",
+    "medical emergency",
+    "accident",
+    "bike accident",
+    "car accident",
+    "road accident",
+    "motorcycle accident",
+    "vehicle accident",
+    "crash",
+    "collision",
 }
 
 _URGENCY_2 = {
@@ -133,6 +187,21 @@ _URGENCY_1_TOKENS = {
     "bleeding",
     "threat",
     "attack",
+    "choking",
+    "choke",
+    "emergency",
+    "urgent",
+    "critical",
+    "fits",
+    "fit",
+    "seizure",
+    "seizures",
+    "convulsions",
+    "epilepsy",
+    "medical",
+    "accident",
+    "crash",
+    "collision",
 }
 
 _URGENCY_2_TOKENS = {
@@ -273,7 +342,17 @@ class FrontDispatcherAgent:
         
         all_emergency_tokens = emergency_tokens | urdu_emergency_tokens
         
+        # Check individual tokens
         if any(token in all_emergency_tokens for token in tokens):
+            return False
+        
+        # Also check for emergency phrases in the query
+        emergency_phrases = [
+            "having fits", "having seizures", "having convulsions", 
+            "cardiac arrest", "not breathing", "heavy bleeding",
+            "medical emergency", "emergency", "urgent", "critical"
+        ]
+        if any(phrase in normalized for phrase in emergency_phrases):
             return False
 
         if len(tokens) <= 3:
@@ -366,64 +445,121 @@ class FrontDispatcherAgent:
         return 3, "Defaulted to informational urgency"
 
     def run(self, request: DispatchRequest, history: Optional[List[dict]] = None) -> FrontAgentOutput:
-        if llm_client.is_configured:
-            try:
-                return self._run_with_llm(request, history)
-            except (LLMError, ValidationError, ValueError, KeyError) as exc:
-                logger.warning("Front agent LLM failed, falling back to heuristics: %s", exc)
+        # Always try LLM first, even if not configured - let it fail and then fall back
+        try:
+            return self._run_with_llm(request, history)
+        except (LLMError, ValidationError, ValueError, KeyError) as exc:
+            logger.warning("Front agent LLM failed, falling back to heuristics: %s", exc)
         return self._run_with_rules(request, history)
 
     def _run_with_llm(self, request: DispatchRequest, history: Optional[List[dict]]) -> FrontAgentOutput:
+        # Check if this is a slow connection
+        from app.utils.network_utils import detect_network_quality
+        network_quality = detect_network_quality(request.network_quality, request.connection_type)
+        is_slow_connection = network_quality.value in ["slow", "unknown"]
+        
+        # Get heuristic keywords - use more heavily for slow connections
         heuristic_keywords = self.extract_keywords(request.user_query)
         if not heuristic_keywords:
-            heuristic_keywords = [request.user_query.lower()[:30]]
+            heuristic_keywords = []
 
         payload = request.model_dump()
-        payload["historical_keywords"] = heuristic_keywords
+        
+        if is_slow_connection:
+            # For slow connections, provide more heuristic guidance
+            payload["heuristic_keywords"] = heuristic_keywords
+            payload["network_condition"] = "slow_connection"
+        else:
+            # For good connections, let Gemini do its own keyword extraction
+            if heuristic_keywords:
+                payload["optional_keyword_hints"] = heuristic_keywords[:3]  # Only provide top 3 as hints
+        
         payload["service_keywords"] = {
             service.value: sorted(list(keywords)) for service, keywords in _SERVICE_KEYWORDS.items()
         }
-        if history:
-            payload["conversation_history"] = history
 
         # Detect language for appropriate prompt
         language = detect_urdu_language(request.user_query)
         
         if language in ['urdu', 'roman_urdu', 'mixed']:
-            system_prompt = (
-                "You are the Front Dispatcher for emergency services. You can handle Urdu, Roman Urdu, and English. "
-                "Receive JSON with userid, user_location, lang, lat, lon, user_query, and helper keyword hints."
-                "\nFollow the rules strictly:\n"
-                "1) Extract 3-8 concise keywords or short phrases from user_query (can be in Urdu, Roman Urdu, or English)."
-                "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety; 2 = serious but not immediately fatal; 3 = informational."
-                "\n3) Choose selected_service from ['medical','police','disaster','general']. Use 'general' for greetings, wellness check-ins, or messages without actionable emergency clues."
-                "\n4) Provide a short explanation that mentions both urgency and service reasons."
-                "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
-                "\n6) For Urdu greetings like 'salam', 'salaam alaikum', route to 'general' service."
-                "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
-                "follow_up_required (bool), follow_up_reason (string or null)."
-                "\nOnly respond with JSON, no extra text."
-            )
+            if is_slow_connection:
+                system_prompt = (
+                    "You are the Front Dispatcher for emergency services. You can handle Urdu, Roman Urdu, and English. "
+                    "SLOW CONNECTION DETECTED - Use the provided heuristic keywords as guidance for faster processing."
+                    "\nIMPORTANT: Use the conversation context to understand if this is a follow-up response to a previous question. "
+                    "If the user_query is a short response (like a number, yes/no, brief answer) and this appears to be a follow-up to a previous question, "
+                    "route to the same service as the previous interaction and set urgency based on the original emergency context."
+                    "\nFollow the rules strictly:\n"
+                    "1) Use the heuristic_keywords provided as a starting point, but refine them based on the user_query. Extract 3-8 concise keywords (can be in Urdu, Roman Urdu, or English)."
+                    "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety (choking, seizures, fits, unconscious, not breathing, cardiac arrest, heavy bleeding, drowning, severe allergic reaction, heart attack, stroke, drug overdose, poisoning, severe burns, trauma, head injury, chest pain, difficulty breathing, severe pain, emergency, urgent, critical, life-threatening, asthma attack, diabetic emergency, pregnancy complications, mental health crisis, suicidal thoughts, panic attack, anxiety attack); 2 = serious but not immediately fatal (broken bones, moderate injuries, theft, assault, moderate bleeding, sprains, cuts, bruises, non-emergency medical issues); 3 = informational (general questions, greetings, non-urgent inquiries)."
+                    "\n3) Choose selected_service from ['medical','police','disaster','general']. MEDICAL for: choking, seizures, fits, convulsions, unconscious, not breathing, cardiac arrest, heavy bleeding, drowning, severe allergic reaction, heart attack, stroke, fever, illness, medical emergency, ambulance needed, drug overdose, poisoning, severe burns, trauma, head injury, chest pain, difficulty breathing, severe pain, asthma attack, diabetic emergency, pregnancy complications, mental health crisis, suicidal thoughts, panic attack, anxiety attack, any medical condition requiring immediate attention. POLICE for: theft, robbery, assault, attack, violence, crime, stolen items, suspicious activity, domestic violence, harassment, threats, burglary, vandalism, hit and run, traffic accident, missing person, child abduction, sexual assault, fraud, cybercrime, drug dealing, public disturbance, noise complaint, trespassing. DISASTER for: fire, flood, earthquake, storm, evacuation, natural disasters, building collapse, gas leak, chemical spill, power outage, water main break, road closure, landslide, tornado, hurricane, tsunami, volcanic activity, nuclear emergency, terrorist attack, bomb threat, active shooter. Use 'general' ONLY for greetings, wellness check-ins, or messages without actionable emergency clues."
+                    "\n4) Provide a short explanation that mentions both urgency and service reasons."
+                    "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
+                    "\n6) For Urdu greetings like 'salam', 'salaam alaikum', route to 'general' service."
+                    "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
+                    "follow_up_required (bool), follow_up_reason (string or null)."
+                    "\nOnly respond with JSON, no extra text."
+                )
+            else:
+                system_prompt = (
+                    "You are the Front Dispatcher for emergency services. You can handle Urdu, Roman Urdu, and English. "
+                    "Receive JSON with userid, user_location, lang, lat, lon, user_query, and optional helper keyword hints."
+                    "\nIMPORTANT: Use the conversation context to understand if this is a follow-up response to a previous question. "
+                    "If the user_query is a short response (like a number, yes/no, brief answer) and this appears to be a follow-up to a previous question, "
+                    "route to the same service as the previous interaction and set urgency based on the original emergency context."
+                    "\nFollow the rules strictly:\n"
+                    "1) Extract 3-8 concise keywords or short phrases from user_query (can be in Urdu, Roman Urdu, or English). Focus on the most important emergency-related terms. Ignore common words like 'my', 'the', 'is', etc."
+                    "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety (choking, seizures, fits, unconscious, not breathing, cardiac arrest, heavy bleeding, drowning, severe allergic reaction, heart attack, stroke, drug overdose, poisoning, severe burns, trauma, head injury, chest pain, difficulty breathing, severe pain, emergency, urgent, critical, life-threatening, asthma attack, diabetic emergency, pregnancy complications, mental health crisis, suicidal thoughts, panic attack, anxiety attack); 2 = serious but not immediately fatal (broken bones, moderate injuries, theft, assault, moderate bleeding, sprains, cuts, bruises, non-emergency medical issues); 3 = informational (general questions, greetings, non-urgent inquiries)."
+                    "\n3) Choose selected_service from ['medical','police','disaster','general']. MEDICAL for: choking, seizures, fits, convulsions, unconscious, not breathing, cardiac arrest, heavy bleeding, drowning, severe allergic reaction, heart attack, stroke, fever, illness, medical emergency, ambulance needed, drug overdose, poisoning, severe burns, trauma, head injury, chest pain, difficulty breathing, severe pain, asthma attack, diabetic emergency, pregnancy complications, mental health crisis, suicidal thoughts, panic attack, anxiety attack, any medical condition requiring immediate attention. POLICE for: theft, robbery, assault, attack, violence, crime, stolen items, suspicious activity, domestic violence, harassment, threats, burglary, vandalism, hit and run, traffic accident, missing person, child abduction, sexual assault, fraud, cybercrime, drug dealing, public disturbance, noise complaint, trespassing. DISASTER for: fire, flood, earthquake, storm, evacuation, natural disasters, building collapse, gas leak, chemical spill, power outage, water main break, road closure, landslide, tornado, hurricane, tsunami, volcanic activity, nuclear emergency, terrorist attack, bomb threat, active shooter. Use 'general' ONLY for greetings, wellness check-ins, or messages without actionable emergency clues."
+                    "\n4) Provide a short explanation that mentions both urgency and service reasons."
+                    "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
+                    "\n6) For Urdu greetings like 'salam', 'salaam alaikum', route to 'general' service."
+                    "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
+                    "follow_up_required (bool), follow_up_reason (string or null)."
+                    "\nOnly respond with JSON, no extra text."
+                )
         else:
-            system_prompt = (
-                "You are the Front Dispatcher. Receive JSON with userid, user_location, lang, lat, lon, "
-                "user_query, and helper keyword hints."
-                "\nFollow the rules strictly:\n"
-                "1) Extract 3-8 concise keywords or short phrases from user_query."
-                "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety; 2 = serious but not immediately fatal; 3 = informational."
-                "\n3) Choose selected_service from ['medical','police','disaster','general']. Use 'general' for greetings, wellness check-ins, or messages without actionable emergency clues."
-                "\n4) Provide a short explanation that mentions both urgency and service reasons."
-                "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
-                "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
-                "follow_up_required (bool), follow_up_reason (string or null)."
-                "\nOnly respond with JSON, no extra text."
-            )
+            if is_slow_connection:
+                system_prompt = (
+                    "You are the Front Dispatcher for emergency services. "
+                    "SLOW CONNECTION DETECTED - Use the provided heuristic keywords as guidance for faster processing."
+                    "\nIMPORTANT: Use the conversation context to understand if this is a follow-up response to a previous question. "
+                    "If the user_query is a short response (like a number, yes/no, brief answer) and this appears to be a follow-up to a previous question, "
+                    "route to the same service as the previous interaction and set urgency based on the original emergency context."
+                    "\nFollow the rules strictly:\n"
+                    "1) Use the heuristic_keywords provided as a starting point, but refine them based on the user_query. Extract 3-8 concise keywords."
+                    "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety; 2 = serious but not immediately fatal; 3 = informational."
+                    "\n3) Choose selected_service from ['medical','police','disaster','general']. Use 'general' for greetings, wellness check-ins, or messages without actionable emergency clues."
+                    "\n4) Provide a short explanation that mentions both urgency and service reasons."
+                    "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
+                    "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
+                    "follow_up_required (bool), follow_up_reason (string or null)."
+                    "\nOnly respond with JSON, no extra text."
+                )
+            else:
+                system_prompt = (
+                    "You are the Front Dispatcher for emergency services. Receive JSON with userid, user_location, lang, lat, lon, "
+                    "user_query, optional helper keyword hints, and conversation_history."
+                    "\nIMPORTANT: Use the conversation context to understand if this is a follow-up response to a previous question. "
+                    "If the user_query is a short response (like a number, yes/no, brief answer) and this appears to be a follow-up to a previous question, "
+                    "route to the same service as the previous interaction and set urgency based on the original emergency context."
+                    "\nFollow the rules strictly:\n"
+                    "1) Extract 3-8 concise keywords or short phrases from user_query. Focus on the most important emergency-related terms. Ignore common words like 'my', 'the', 'is', etc."
+                    "\n2) Decide urgency in {1,2,3}. 1 = immediate life safety (choking, seizures, fits, unconscious, not breathing, cardiac arrest, heavy bleeding, drowning, severe allergic reaction, heart attack, stroke, drug overdose, poisoning, severe burns, trauma, head injury, chest pain, difficulty breathing, severe pain, emergency, urgent, critical, life-threatening, asthma attack, diabetic emergency, pregnancy complications, mental health crisis, suicidal thoughts, panic attack, anxiety attack, ACCIDENTS, crashes, collisions, bike accidents, car accidents, road accidents, motorcycle accidents, vehicle accidents, any accident with potential for injury); 2 = serious but not immediately fatal (broken bones, moderate injuries, theft, assault, moderate bleeding, sprains, cuts, bruises, non-emergency medical issues); 3 = informational (general questions, greetings, non-urgent inquiries)."
+                    "\n3) Choose selected_service from ['medical','police','disaster','general']. MEDICAL for: choking, seizures, fits, convulsions, unconscious, not breathing, cardiac arrest, heavy bleeding, drowning, severe allergic reaction, heart attack, stroke, fever, illness, medical emergency, ambulance needed, drug overdose, poisoning, severe burns, trauma, head injury, chest pain, difficulty breathing, severe pain, asthma attack, diabetic emergency, pregnancy complications, mental health crisis, suicidal thoughts, panic attack, anxiety attack, ACCIDENTS, crashes, collisions, bike accidents, car accidents, road accidents, motorcycle accidents, vehicle accidents, any medical condition requiring immediate attention. POLICE for: theft, robbery, assault, attack, violence, crime, stolen items, suspicious activity, domestic violence, harassment, threats, burglary, vandalism, hit and run, traffic accident, missing person, child abduction, sexual assault, fraud, cybercrime, drug dealing, public disturbance, noise complaint, trespassing. DISASTER for: fire, flood, earthquake, storm, evacuation, natural disasters, building collapse, gas leak, chemical spill, power outage, water main break, road closure, landslide, tornado, hurricane, tsunami, volcanic activity, nuclear emergency, terrorist attack, bomb threat, active shooter. Use 'general' ONLY for greetings, wellness check-ins, or messages without actionable emergency clues."
+                    "\n4) Provide a short explanation that mentions both urgency and service reasons."
+                    "\n5) If confidence in the service is low or you select 'general', set follow_up_required true and include follow_up_reason requesting clarification; otherwise set follow_up_required false and follow_up_reason null."
+                    "\nReturn strict JSON with keys: keywords (array), urgency (int), selected_service (string), explain (string), "
+                    "follow_up_required (bool), follow_up_reason (string or null)."
+                    "\nOnly respond with JSON, no extra text."
+                )
 
         result = llm_client.structured_completion(
             system_prompt=system_prompt,
             payload=payload,
             temperature=0.1,
-            max_tokens=500,
+            max_tokens=800,
+            user_id=request.userid,
         )
 
         result.setdefault("follow_up_required", False)
@@ -440,23 +576,47 @@ class FrontDispatcherAgent:
         if "keywords" in result and isinstance(result["keywords"], list):
             result["keywords"] = [str(keyword).strip() for keyword in result["keywords"] if str(keyword).strip()]
 
-        heur_keywords = heuristic_keywords[:]
-        heur_keywords = self._ensure_minimum_keywords(heur_keywords, request.user_query)
-        route_general = self._should_route_to_general(request.user_query, heuristic_keywords)
-        result["keywords"] = self._ensure_minimum_keywords(result.get("keywords", []), request.user_query)
-
-        if route_general:
-            result["selected_service"] = ServiceType.GENERAL.value
-            result["follow_up_required"] = True
-            result["follow_up_reason"] = get_urdu_follow_up_message(language)
-
-        heur_urgency, heur_reason = self.determine_urgency(request.user_query, heur_keywords)
-        if heur_urgency < result.get("urgency", 3):
-            result["urgency"] = heur_urgency
-            explain = result.get("explain") or ""
-            if heur_reason not in explain:
-                explain = f"{heur_reason}; {explain}".strip("; ")
-            result["explain"] = explain
+        # Handle keyword extraction based on connection quality
+        gemini_keywords = result.get("keywords", [])
+        
+        if is_slow_connection:
+            # For slow connections, use heuristic keywords more heavily
+            if len(gemini_keywords) < 3 or not gemini_keywords:
+                # Fall back to heuristic keywords
+                result["keywords"] = self._ensure_minimum_keywords(heuristic_keywords, request.user_query)
+            else:
+                # Use Gemini's keywords but validate with heuristics
+                combined_keywords = list(set(gemini_keywords + heuristic_keywords[:3]))
+                result["keywords"] = combined_keywords[:8]
+            
+            # More aggressive heuristic validation for slow connections
+            route_general = self._should_route_to_general(request.user_query, result["keywords"])
+            if route_general:
+                result["selected_service"] = ServiceType.GENERAL.value
+                result["follow_up_required"] = True
+                result["follow_up_reason"] = get_urdu_follow_up_message(language)
+            
+            # Use heuristic urgency for slow connections if it's more urgent
+            heur_urgency, heur_reason = self.determine_urgency(request.user_query, result["keywords"])
+            if heur_urgency < result.get("urgency", 3):
+                result["urgency"] = heur_urgency
+                explain = result.get("explain") or ""
+                if heur_reason not in explain:
+                    explain = f"{heur_reason}; {explain}".strip("; ")
+                result["explain"] = explain
+        else:
+            # For good connections, TRUST GEMINI completely - no heuristic overrides
+            if len(gemini_keywords) < 3:
+                # Only fall back to heuristics if Gemini didn't extract enough keywords
+                result["keywords"] = self._ensure_minimum_keywords(gemini_keywords, request.user_query)
+            else:
+                # Trust Gemini's keywords completely
+                result["keywords"] = [kw for kw in gemini_keywords if kw and len(kw.strip()) > 0][:8]
+            
+            # NO heuristic validation for good connections - trust Gemini's intelligence
+            # Only ensure we have valid service type
+            if result.get("selected_service") not in {svc.value for svc in ServiceType}:
+                result["selected_service"] = ServiceType.GENERAL.value
 
         return FrontAgentOutput.model_validate(result)
 
@@ -464,6 +624,45 @@ class FrontDispatcherAgent:
         raw_keywords = self.extract_keywords(request.user_query)
         if not raw_keywords:
             raw_keywords = [request.user_query.lower()[:30]]
+
+        # Check if this is a follow-up response
+        query_lower = request.user_query.lower()
+        is_followup = (
+            # Short numeric responses
+            (len(request.user_query.strip()) <= 10 and any(char.isdigit() for char in request.user_query)) or
+            # Medical follow-up responses (but not initial accident reports)
+            any(term in query_lower for term in ["yes", "no", "bleeding", "conscious", "breathing", "unconscious", "pain", "hurt", "injured", "wounded", "cut", "bruise", "swelling", "nausea", "dizzy", "faint", "weak", "tired", "sick", "ill", "fever", "temperature", "headache", "chest pain", "back pain", "leg pain", "arm pain", "neck pain", "stomach pain", "abdominal pain", "severe", "mild", "moderate", "bad", "worse", "better", "same", "okay", "fine", "good", "alright", "not good", "terrible", "awful", "critical", "urgent", "emergency", "help", "assistance", "ambulance", "hospital", "doctor", "medic", "nurse", "paramedic", "first aid", "bandage", "pressure", "stop bleeding", "control bleeding", "apply pressure", "elevate", "ice", "heat", "rest", "lie down", "sit up", "stand", "walk", "move", "can't move", "stuck", "trapped", "pinned", "crushed", "hit", "struck", "fell", "fallen", "dropped", "slipped", "tripped", "collision", "impact", "crash", "incident", "injury", "wound", "laceration", "abrasion", "contusion", "fracture", "broken", "sprain", "strain", "dislocation", "concussion", "head injury", "chest injury", "back injury", "neck injury", "spine injury", "internal injury", "external injury", "visible injury", "hidden injury", "serious injury", "minor injury", "major injury", "life-threatening", "life threatening", "fatal", "deadly", "dangerous", "safe", "stable", "unstable", "critical condition", "serious condition", "stable condition", "improving", "worsening", "getting worse", "getting better", "no change", "same as before", "different", "new", "additional", "more", "less", "increased", "decreased", "stopped", "started", "began", "continued", "persistent", "constant", "intermittent", "occasional", "frequent", "rare", "never", "always", "sometimes", "often", "seldom", "recently", "just now", "a moment ago", "few minutes ago", "hour ago", "today", "yesterday", "this morning", "this afternoon", "this evening", "tonight", "last night", "this week", "this month", "this year", "recent", "recently", "lately", "now", "currently", "presently", "at present", "at the moment", "right now", "immediately", "urgently", "quickly", "fast", "slowly", "gradually", "suddenly", "instantly", "immediately", "right away", "asap", "as soon as possible", "quick", "rapid", "swift", "prompt", "immediate", "instant", "direct", "straight", "directly", "immediately", "right now", "now", "currently", "presently", "at present", "at the moment", "right now", "immediately", "urgently", "quickly", "fast", "slowly", "gradually", "suddenly", "instantly", "immediately", "right away", "asap", "as soon as possible", "quick", "rapid", "swift", "prompt", "immediate", "instant", "direct", "straight", "directly"]) and not any(term in query_lower for term in ["accident", "crash", "collision", "bike accident", "car accident", "road accident", "motorcycle accident", "vehicle accident"])
+        )
+        
+        if is_followup:
+            # For follow-up responses, try to determine the service based on context
+            # This is a simplified approach - in a real system, you'd use conversation history
+            
+            # Check for medical follow-up responses
+            if any(term in query_lower for term in ["bleeding", "conscious", "breathing", "unconscious", "pain", "hurt", "injured", "wounded", "cut", "bruise", "swelling", "nausea", "dizzy", "faint", "weak", "tired", "sick", "ill", "fever", "temperature", "headache", "chest pain", "back pain", "leg pain", "arm pain", "neck pain", "stomach pain", "abdominal pain", "severe", "mild", "moderate", "bad", "worse", "better", "same", "okay", "fine", "good", "alright", "not good", "terrible", "awful", "critical", "urgent", "emergency", "help", "assistance", "ambulance", "hospital", "doctor", "medic", "nurse", "paramedic", "first aid", "bandage", "pressure", "stop bleeding", "control bleeding", "apply pressure", "elevate", "ice", "heat", "rest", "lie down", "sit up", "stand", "walk", "move", "can't move", "stuck", "trapped", "pinned", "crushed", "hit", "struck", "fell", "fallen", "dropped", "slipped", "tripped", "collision", "impact", "crash", "accident", "incident", "injury", "wound", "laceration", "abrasion", "contusion", "fracture", "broken", "sprain", "strain", "dislocation", "concussion", "head injury", "chest injury", "back injury", "neck injury", "spine injury", "internal injury", "external injury", "visible injury", "hidden injury", "serious injury", "minor injury", "major injury", "life-threatening", "life threatening", "fatal", "deadly", "dangerous", "safe", "stable", "unstable", "critical condition", "serious condition", "stable condition", "improving", "worsening", "getting worse", "getting better", "no change", "same as before", "different", "new", "additional", "more", "less", "increased", "decreased", "stopped", "started", "began", "continued", "persistent", "constant", "intermittent", "occasional", "frequent", "rare", "never", "always", "sometimes", "often", "seldom", "recently", "just now", "a moment ago", "few minutes ago", "hour ago", "today", "yesterday", "this morning", "this afternoon", "this evening", "tonight", "last night", "this week", "this month", "this year", "recent", "recently", "lately", "now", "currently", "presently", "at present", "at the moment", "right now", "immediately", "urgently", "quickly", "fast", "slowly", "gradually", "suddenly", "instantly", "immediately", "right away", "asap", "as soon as possible", "quick", "rapid", "swift", "prompt", "immediate", "instant", "direct", "straight", "directly"]):
+                # This looks like a medical follow-up response
+                keywords = ["medical", "follow_up", "injury", "bleeding", "emergency", "urgent", "critical"]
+                return FrontAgentOutput(
+                    keywords=keywords,
+                    urgency=1,
+                    selected_service=ServiceType.MEDICAL,
+                    explain="Follow-up response to medical emergency, processing injury details.",
+                    follow_up_required=False,
+                    follow_up_reason=None,
+                )
+            
+            # Check for disaster-related follow-up (evacuation count)
+            elif any(char.isdigit() for char in query_lower) and len(query_lower) <= 10:
+                # This looks like an evacuation count response
+                keywords = ["evacuation", "count", "people", "assistance", "disaster", "follow_up"]
+                return FrontAgentOutput(
+                    keywords=keywords,
+                    urgency=1,
+                    selected_service=ServiceType.DISASTER,
+                    explain="Follow-up response to disaster emergency, processing evacuation count.",
+                    follow_up_required=False,
+                    follow_up_reason=None,
+                )
 
         route_general = self._should_route_to_general(request.user_query, raw_keywords)
         keywords = self._ensure_minimum_keywords(raw_keywords, request.user_query)
