@@ -48,6 +48,13 @@ from app.services.admin import (
     get_service_distribution,
     get_dispatch_locations,
 )
+from app.services.dispatch_events import (
+    get_dispatch_events,
+    get_dispatch_events_for_graph,
+    get_dispatch_statistics,
+    get_dispatch_events_by_user,
+)
+from app.models.dispatch_events import DispatchEventRecord
 from app.config import SESSION_SECRET_KEY, SESSION_COOKIE_NAME, SESSION_MAX_AGE
 from app.utils.session import create_session_token, verify_session_token, get_session_expiry
 
@@ -446,6 +453,60 @@ async def get_admin_dispatch_locations(
 ) -> List[Dict[str, Any]]:
     """Get dispatch locations for map visualization."""
     return get_dispatch_locations(session)
+
+
+@app.get("/api/v1/dispatch-events", response_model=List[DispatchEventRecord])
+async def get_dispatch_events_endpoint(
+    limit: int = 50,
+    offset: int = 0,
+    service: Optional[ServiceType] = None,
+    status: Optional[str] = None,
+    hours: Optional[int] = None,
+    current_user: UserResponse = Depends(require_auth),
+    session: Session = Depends(get_session)
+) -> List[DispatchEventRecord]:
+    """Get dispatch events with optional filtering."""
+    events = get_dispatch_events(
+        session,
+        limit=limit,
+        offset=offset,
+        service=service,
+        status=status,
+        hours=hours
+    )
+    return [DispatchEventRecord.model_validate(event) for event in events]
+
+
+@app.get("/api/v1/dispatch-events/graph")
+async def get_dispatch_events_for_graph_endpoint(
+    hours: int = 24,
+    current_user: UserResponse = Depends(require_auth),
+    session: Session = Depends(get_session)
+) -> List[Dict[str, Any]]:
+    """Get dispatch events formatted for graph display."""
+    return get_dispatch_events_for_graph(session, hours=hours)
+
+
+@app.get("/api/v1/dispatch-events/statistics")
+async def get_dispatch_statistics_endpoint(
+    hours: int = 24,
+    current_user: UserResponse = Depends(require_auth),
+    session: Session = Depends(get_session)
+) -> Dict[str, Any]:
+    """Get dispatch statistics for analytics."""
+    return get_dispatch_statistics(session, hours=hours)
+
+
+@app.get("/api/v1/dispatch-events/user/{user_id}", response_model=List[DispatchEventRecord])
+async def get_user_dispatch_events(
+    user_id: str,
+    limit: int = 20,
+    current_user: UserResponse = Depends(require_auth),
+    session: Session = Depends(get_session)
+) -> List[DispatchEventRecord]:
+    """Get dispatch events for a specific user."""
+    events = get_dispatch_events_by_user(session, user_id, limit=limit)
+    return [DispatchEventRecord.model_validate(event) for event in events]
 
 
 @app.get("/health")
